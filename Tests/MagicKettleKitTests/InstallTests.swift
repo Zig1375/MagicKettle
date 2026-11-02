@@ -105,6 +105,8 @@ private let fixtures = URL(filePath: #filePath).deletingLastPathComponent()
         #expect(InstalledPrograms.role(ofFileNamed: "vcredist_x86.exe") == .redistributable)
         #expect(InstalledPrograms.role(ofFileNamed: "dxsetup.exe", path: "/Game/DirectX") == .redistributable)
         #expect(InstalledPrograms.role(ofFileNamed: "fallout2.exe") == .game)
+        // Kerbal Space Program's biggest exe; it was picked over KSP_x64.exe.
+        #expect(InstalledPrograms.role(ofFileNamed: "UnityCrashHandler64.exe") == .settings)
     }
 
     @Test func theShortcutsTargetIsRecommendedAndTheUninstallerLeftOut() throws {

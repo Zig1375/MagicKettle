@@ -64,10 +64,13 @@ extension StoreLibrary {
                     record.name = game.name
                     record.folder = folder
                     // A program the store names wins over one Magic Kettle picked, and a picked one stays while it
-                    // exists.
+                    // exists and is a game: Kerbal Space Program got `UnityCrashHandler64.exe`, its biggest exe,
+                    // before crash handlers counted as tools.
+                    let picked = URL(filePath: record.executable)
                     if let exe = game.executable?.path(percentEncoded: false), exe != record.executable {
                         record.executable = exe
-                    } else if !FileManager.default.fileExists(atPath: record.executable),
+                    } else if !FileManager.default.fileExists(atPath: record.executable)
+                                || InstalledPrograms.role(ofFileNamed: picked.lastPathComponent) != .game,
                               let exe = mainProgram(of: game) {
                         record.executable = exe.path(percentEncoded: false)
                     }

@@ -50,11 +50,15 @@ extension StoreClient {
 
     /// Whether the log shows the 64-bit round complete. Later starts check the same manifest and write
     /// `Download skipped`; only `Downloaded new manifest` starts a round. A client that updated itself long ago
-    /// has no round in its log any more; then the installed manifest alone counts.
+    /// has no round in its log any more; then the installed manifest alone counts. Only a round onto nothing
+    /// (`installed version 0`) is the first update: a later round repairs or updates a client that is already
+    /// there, and counting it left the next start without `-noverifyfiles`, which put Valve's helper back.
     static func steamUpdateFinished(log text: String) -> Bool {
         let lines = text.components(separatedBy: .newlines)
-        guard let round = lines.lastIndex(where: { $0.contains("Downloaded new manifest: /steam_client_win64") })
-        else { return true }
+        guard let round = lines.lastIndex(where: {
+            $0.contains("Downloaded new manifest: /steam_client_win64")
+                && $0.range(of: #"installed version 0\b"#, options: .regularExpression) != nil
+        }) else { return true }
         return lines[(round + 1)...].contains { $0.contains("] Shutdown") }
     }
 

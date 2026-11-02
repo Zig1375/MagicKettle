@@ -73,16 +73,30 @@ struct SteamStore: StoreModule {
         try await stores.updateSteam(client, wine: wine, environment: environment, in: bottle) { _ in }
     }
 
+    /// `steam.exe -shutdown` is a whole start of Steam's updater: without `-noverifyfiles` it checks the files,
+    /// finds `ChromiumHelper`'s wrapper and stages Valve's helper to put back, which the next start installs. Its
+    /// windows were black after a player quit Steam and opened it again.
+    static let shutdownArguments = ["-shutdown", "-noverifyfiles"]
+
     /// Steam is asked to quit first, so it saves its state. A Steam stuck at start never answers `-shutdown`:
-    /// after 20 s the rest of the bottle is ended anyway.
+    /// after 20 s the rest of the bottle is ended anyway. With no `steam.exe` left (Steam already quit, its
+    /// service still running) there is no one to ask.
     func askToQuit(_ stores: StoreClient, client: URL, bottle: URL, wine: Wine,
                    environment: [String: String]) async {
-        _ = try? await ProcessRunner.run(wine.wine.path, [client.path(percentEncoded: false), "-shutdown"],
-                                         environment: environment, timeout: 20)
+        if WineProcesses.running(in: bottle).contains(where: { Self.isClient($0.program) }) {
+            _ = try? await ProcessRunner.run(wine.wine.path,
+                                             [client.path(percentEncoded: false)] + Self.shutdownArguments,
+                                             environment: environment, timeout: 20)
+        }
         let deadline = Date().addingTimeInterval(20)
         while !WineProcesses.running(in: bottle).isEmpty, Date() < deadline {
             try? await Task.sleep(for: .milliseconds(500))
         }
+    }
+
+    /// `C:\Program Files (x86)\Steam\steam.exe`, not `steamservice.exe` or `steamwebhelper.exe`.
+    static func isClient(_ program: String) -> Bool {
+        program.split(whereSeparator: { $0 == "\\" || $0 == "/" }).last?.lowercased() == "steam.exe"
     }
 
     func tidy(_ processes: [WineProcesses.Process]) {

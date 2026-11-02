@@ -37,4 +37,24 @@ import Testing
         #expect(StoreLibrary.merge([.steam: [banished]], into: &library, now: Date(), retina: .off))
         #expect(library.games.first?.retina == .off)
     }
+
+    @Test func aCrashHandlerPickedAsTheProgramIsPickedAgain() throws {
+        let folder = temp.url.appending(path: "common/Kerbal Space Program", directoryHint: .isDirectory)
+        try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        let game = folder.appending(path: "KSP_x64.exe")
+        let handler = folder.appending(path: "UnityCrashHandler64.exe")
+        try FileManager.default.copyItem(at: Probes.url("d3d11-x64"), to: game)
+        try FileManager.default.copyItem(at: Probes.url("d3d11-x64"), to: handler)
+        var record = GameRecord(id: .make(), name: "Kerbal Space Program",
+                                executable: handler.path(percentEncoded: false),
+                                folder: folder.path(percentEncoded: false), hasMarker: false, addedAt: Date())
+        record.store = .steam
+        record.storeID = "220200"
+        var library = GameLibrary()
+        library.games = [record]
+        let ksp = StoreLibrary.Game(store: .steam, id: "220200", name: "Kerbal Space Program", folder: folder)
+        #expect(StoreLibrary.merge([.steam: [ksp]], into: &library, now: Date()))
+        #expect(library.games.first.map { URL(filePath: $0.executable).lastPathComponent } == game.lastPathComponent)
+        #expect(!StoreLibrary.merge([.steam: [ksp]], into: &library, now: Date()))
+    }
 }

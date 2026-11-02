@@ -52,7 +52,7 @@ public enum InstalledPrograms {
             return .redistributable
         }
         let settings = ["config", "setup", "settings", "setsound", "options", "configure", "register", "readme",
-                        "update", "patch", "crashreport", "report"]
+                        "update", "patch", "crashreport", "crashhandler", "report"]
         if settings.contains(where: base.contains) { return .settings }
         return .game
     }

@@ -10,6 +10,30 @@ import Testing
         quit.update(windows: windows, game: game, now: start.addingTimeInterval(second))
     }
 
+    @Test func steamIsAskedToQuitWithoutCheckingItsFiles() {
+        #expect(SteamStore.shutdownArguments == ["-shutdown", "-noverifyfiles"])
+        #expect(SteamStore.isClient(#"C:\Program Files (x86)\Steam\steam.exe"#))
+        #expect(SteamStore.isClient(#"C:\Program Files (x86)\Steam\Steam.exe"#))
+        #expect(!SteamStore.isClient(#"C:\Program Files (x86)\Common Files\Steam\steamservice.exe"#))
+        #expect(!SteamStore.isClient(#"C:\Program Files (x86)\Steam\bin\cef\cef.win64\steamwebhelper.exe"#))
+    }
+
+    @Test func aRepairRoundIsNotSteamsFirstUpdate() {
+        let log = """
+            [2026-11-02 23:51:42] Downloaded new manifest: /steam_client_win64 version 1792618285, \
+            installed version 0, existing pending version 0
+            [2026-11-02 23:52:30] Shutdown
+            """
+        // `-shutdown` without `-noverifyfiles` found the wrapper and staged a repair: not a first update.
+        #expect(StoreClient.steamUpdateFinished(log: log + """
+
+            [2026-11-03 01:26:50] BVerifyInstalledFiles: bin\\cef\\cef.win64\\steamwebhelper.exe is 18432 bytes
+            [2026-11-03 01:26:54] Downloaded new manifest: /steam_client_win64 version 1792618285, \
+            installed version 1792618285, existing pending version 0
+            [2026-11-03 01:26:54] Разархивирование пакета...
+            """))
+    }
+
     @Test func closedWindowQuitsAfterAMoment() {
         var quit = StoreQuit()
         #expect(!look(&quit, windows: true, game: false, at: 0))
