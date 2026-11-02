@@ -10,7 +10,7 @@ changing behaviour. The user speaks Russian: answer in Russian, but code, commen
 
 ## Release notes: every change goes into one
 
-Only a pushed tag `vX.Y.N` makes a release (`ci.yml`); pushes to `main` release nothing, so README and other
+Only a pushed tag `vX.Y.N` makes a release (`ci.yml`); pushes to `main` run no CI at all, so README and other
 pushes don't need a release. A release is described by `release-notes/v<version>.md` (`scripts/next-version.sh`
 prints the next version); the release job refuses a tag without one. Release only when the user asks. Keep the
 notes current as you work:

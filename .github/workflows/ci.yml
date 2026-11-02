@@ -1,10 +1,10 @@
 name: CI
 
+# Only version tags run CI: a push to main or a pull request builds nothing. Check locally before tagging
+# (swiftlint, swift test, the app build, scripts/check-translations.py), since a failure shows only after the tag.
 on:
   push:
-    branches: [main]
     tags: ['v*.*.*']
-  pull_request:
 
 jobs:
   build:
@@ -27,7 +27,7 @@ jobs:
         run: scripts/check-translations.py .build/xcode
 
   # Pushing a tag vX.Y.N (scripts/next-version.sh prints the next one) makes a release: MagicKettle-X.Y.N.zip
-  # (ad-hoc signed, not notarized), build number N. Pushes to main without a tag release nothing. The release's
+  # (ad-hoc signed, not notarized), build number N. Pushes without a tag run nothing. The release's
   # description is release-notes/vX.Y.N.md in the tagged commit; a tag without one is refused before building.
   release:
     needs: build
