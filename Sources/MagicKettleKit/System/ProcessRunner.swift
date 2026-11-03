@@ -38,7 +38,7 @@ enum ProcessRunner {
             }
             process.terminationHandler = { process in
                 pipe.fileHandleForReading.readabilityHandler = nil
-                collected.append(pipe.fileHandleForReading.readDataToEndOfFile())
+                collected.append(Self.remaining(in: pipe.fileHandleForReading))
                 continuation.resume(returning: Output(status: process.terminationStatus, output: collected.text))
             }
             do {
@@ -63,6 +63,22 @@ enum ProcessRunner {
             throw Failure(tool: URL(filePath: executable).lastPathComponent, status: result.status,
                           output: String(result.output.suffix(2000)))
         }
+    }
+
+    /// What the tool wrote that wasn't read yet, without waiting for the end of the output. A Wine program that is
+    /// the first in its bottle starts `wineserver`, which keeps the program's output open for as long as the bottle
+    /// runs: waiting for its end hung the store checks while Steam ran, and Steam showed as not running.
+    private static func remaining(in handle: FileHandle) -> Data {
+        let descriptor = handle.fileDescriptor
+        _ = fcntl(descriptor, F_SETFL, fcntl(descriptor, F_GETFL) | O_NONBLOCK)
+        var data = Data()
+        var buffer = [UInt8](repeating: 0, count: 65536)
+        while true {
+            let count = read(descriptor, &buffer, buffer.count)
+            guard count > 0 else { break }
+            data.append(buffer, count: count)
+        }
+        return data
     }
 
     private final class Collected: @unchecked Sendable {
