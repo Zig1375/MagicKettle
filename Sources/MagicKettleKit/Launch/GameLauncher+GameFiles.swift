@@ -46,18 +46,19 @@ extension GameLauncher {
         }
     }
 
-    /// A store's games are left alone: they come with what they need, and share their store's bottle.
+    /// A store's games are left alone: they come with what they need, and share their store's bottle. A program
+    /// that only runs with a store (a mod manager) gets what it needs in the store's bottle.
     /// Everything still to install is counted first, so the sheet can say "1 of 2" from the start.
     func gameFiles(for game: GameRecord, info: ExecutableInfo, in target: Target, fetch: Bool,
                    progress: @Sendable (Step) -> Void) async throws -> GameFiles {
-        guard game.bottleStore == nil else { return GameFiles() }
+        guard game.store == nil else { return GameFiles() }
         let exe = URL(filePath: game.executable)
         let folder = exe.deletingLastPathComponent()
         let rpgMaker = RPGMakerGame.read(folder: folder)
         let manifest = try? ManifestUpdater(paths: paths).current()
         let rtps = rpgMaker.map { game in game.rtps.compactMap { manifest?.rtp($0, engine: game.engine) } } ?? []
-        let redists = RedistNeeds.read(executable: exe, info: info)
-            .map { RedistNeeds.needed($0, from: manifest?.redists ?? []) } ?? []
+        let evidence = RedistNeeds.read(executable: exe, info: info)
+        let redists = evidence.map { RedistNeeds.needed($0, from: manifest?.redists ?? []) } ?? []
 
         let rtpInstaller = RTPInstaller(paths: paths, host: host)
         let missingRTPs = fetch ? rtps.filter { rtpInstaller.installed($0) == nil } : []
@@ -100,7 +101,8 @@ extension GameLauncher {
                          as component: Component, progress: @Sendable (Step) -> Void) async throws -> [String] {
         let result = try await withoutActuallyEscaping(progress) { progress in
             try await RedistInstaller(paths: paths, host: host).install(
-                redist, into: target.bottle, runtimeFolder: target.runtimeFolder, windows: game.windowsVersion
+                redist, into: target.bottle, runtimeFolder: target.runtimeFolder, windows: game.windowsVersion,
+                shared: game.bottleStore != nil
             ) { progress(.component(component.at($0))) }
         }
         guard !result.installed else { return [] }

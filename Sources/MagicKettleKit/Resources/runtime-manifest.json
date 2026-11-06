@@ -717,6 +717,25 @@
         "Microsoft.WindowsDesktop.App/10"
       ],
       "check": "Program Files/dotnet/shared/Microsoft.WindowsDesktop.App/10.0.14"
+    },
+    {
+      "id": "webview2-x64",
+      "name": "Microsoft Edge WebView2",
+      "kind": "webview2",
+      "version": "157.0.4341.42",
+      "architecture": "x64",
+      "url": "https://msedge.sf.dl.delivery.mp.microsoft.com/filestreamingservice/files/0126536e-e048-416f-923b-202f7f6fa64b/MicrosoftEdgeWebView2RuntimeInstallerX64.exe",
+      "sha256": "2688308af55753c62fda4e8140024e230c1ffc16b7c091b25889572f38dff6e8",
+      "size": 214927568,
+      "license": "Microsoft Edge WebView2 Runtime",
+      "arguments": [
+        "/silent",
+        "/install"
+      ],
+      "provides": [
+        "webview2"
+      ],
+      "check": "Program Files (x86)/Microsoft/EdgeWebView/Application"
     }
   ]
 }

@@ -17,6 +17,8 @@ private let vc14 = redist("vcrun14-x64", provides: ["vcruntime140.dll", "msvcp14
 private let dotnet8 = redist("dotnet8-x64", kind: "dotnet",
                              provides: ["Microsoft.NETCore.App/8", "Microsoft.WindowsDesktop.App/8"],
                              check: "Program Files/dotnet/shared/Microsoft.WindowsDesktop.App/8.0.33")
+private let webView2 = redist("webview2-x64", kind: "webview2", provides: ["webview2"],
+                              check: "Program Files (x86)/Microsoft/EdgeWebView/Application")
 
 /// A MonoGame game on .NET 8, as `dotnet publish` writes its `runtimeconfig.json`.
 private let net8 = Data("""
@@ -81,6 +83,16 @@ private let probes = URL(filePath: #filePath).deletingLastPathComponent().deleti
         #expect(RedistNeeds.needed(evidence, from: [vc14, dotnet8]).map(\.id) == ["dotnet8-x64"])
         let older = RedistNeeds.Evidence(architecture: "x64", frameworks: ["Microsoft.NETCore.App/6"])
         #expect(RedistNeeds.needed(older, from: [dotnet8]).isEmpty)
+    }
+
+    /// Gale (Tauri, 64-bit) and a 32-bit launcher both get the one runtime; a program without WebView2 doesn't.
+    @Test func aProgramDrawingWithWebView2GetsItsRuntimeWhateverItsBitness() {
+        let redists = [vc14, webView2]
+        #expect(RedistNeeds.needed(.init(architecture: "x64", webView2: true), from: redists).map(\.id)
+            == ["webview2-x64"])
+        #expect(RedistNeeds.needed(.init(architecture: "x86", webView2: true), from: redists).map(\.id)
+            == ["webview2-x64"])
+        #expect(RedistNeeds.needed(.init(architecture: "x64"), from: redists).isEmpty)
     }
 
     @Test func aKindThisAppDoesNotKnowIsSkipped() {
@@ -214,6 +226,17 @@ private let probes = URL(filePath: #filePath).deletingLastPathComponent().deleti
         #expect(RedistInstaller.isInstalled(dotnet8, in: bottle))
     }
 
+    /// The runtime puts each version in a folder of its own, and the folder alone isn't the runtime.
+    @Test func webView2IsInstalledWhenAVersionFolderHasItsBrowser() throws {
+        let bottle = try bottle()
+        defer { try? FileManager.default.removeItem(at: bottle) }
+        let version = bottle.appending(path: "drive_c").appending(path: webView2.check).appending(path: "142.0.1.2")
+        try FileManager.default.createDirectory(at: version, withIntermediateDirectories: true)
+        #expect(!RedistInstaller.isInstalled(webView2, in: bottle))
+        try Data().write(to: version.appending(path: "msedgewebview2.exe"))
+        #expect(RedistInstaller.isInstalled(webView2, in: bottle))
+    }
+
     @Test func aFailedDownloadIsRememberedUntilTheManifestHasAnother() throws {
         let bottle = try bottle()
         defer { try? FileManager.default.removeItem(at: bottle) }
@@ -237,6 +260,7 @@ private let probes = URL(filePath: #filePath).deletingLastPathComponent().deleti
         for id in ["vcrun2005", "vcrun2010", "vcrun14", "dotnet8", "dotnet10"] {
             #expect(redists.contains { $0.id == "\(id)-x86" } && redists.contains { $0.id == "\(id)-x64" })
         }
+        #expect(redists.contains { $0.kindValue == .webview2 })
     }
 
     @Test func otherHostsAreRejected() throws {
@@ -251,5 +275,18 @@ private let probes = URL(filePath: #filePath).deletingLastPathComponent().deleti
         var cached = bundled
         cached.redists = nil
         #expect(ManifestUpdater.choose(bundled: bundled, cached: cached).redists == bundled.redists)
+    }
+
+    /// The cached list's entries win; one only the app has is added.
+    @Test func aRuntimeOnlyTheAppKnowsIsAddedToTheCachedList() throws {
+        var bundled = try RuntimeManifest.bundled()
+        bundled.redists = [vc14, webView2]
+        var cached = bundled
+        var newer = vc14
+        newer.version = "2"
+        cached.redists = [newer]
+        #expect(ManifestUpdater.choose(bundled: bundled, cached: cached).redists?.map(\.version) == ["2", "1"])
+        #expect(ManifestUpdater.choose(bundled: bundled, cached: cached).redists?.map(\.id)
+            == ["vcrun14-x64", "webview2-x64"])
     }
 }

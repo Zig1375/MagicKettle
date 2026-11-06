@@ -71,7 +71,7 @@ public struct GameInstaller: Sendable {
         }
         if let disc { return disc.deletingPathExtension().lastPathComponent }
         // A package is usually named after its game (`Fallout2.msi`); a setup.exe after nothing.
-        let file = installer.deletingPathExtension().lastPathComponent
+        let file = withoutRelease(installer.deletingPathExtension().lastPathComponent)
         if !generic.contains(file.lowercased()), info == nil || !file.lowercased().contains("setup") { return file }
         let folder = installer.deletingLastPathComponent().lastPathComponent
         return folder.isEmpty || folder == "/" ? file : folder
@@ -189,7 +189,9 @@ public struct GameInstaller: Sendable {
         let folderArguments = plan.kind.folderArguments(folder)
         switch plan.kind {
         case .windowsInstaller:
-            return ["msiexec", "/i", path] + folderArguments
+            // WiX's last page offers to start the program, ticked, and it would start in the installer's Windows,
+            // before Magic Kettle knows the program: Gale did, without the WebView2 it needed, and showed an error.
+            return ["msiexec", "/i", path] + folderArguments + ["WIXUI_EXITDIALOGOPTIONALCHECKBOX=0"]
         case .innoSetup, .nsis, .installShield, .other:
             return [path] + folderArguments
         }
@@ -214,6 +216,8 @@ public struct GameInstaller: Sendable {
                                 folder: folder.path(percentEncoded: false), hasMarker: hasMarker,
                                 windowsVersion: plan.windowsVersion, addedAt: now)
         record.retina = SharedSettings.newGameRetina(paths: paths)
+        // Gale installs with Windows Installer; it then runs beside Steam's games like r2modman's single exe.
+        record.runsWith = ModManagers.store(for: exe, paths: paths)
         if keepDisc, let disc = plan.disc { record.disc = disc.image.path(percentEncoded: false) }
         if !keepDisc { DiscDrive.eject(from: bottle) }
         try GameLibrary.modify(paths.library) { $0[record.id] = record }
@@ -317,5 +321,15 @@ public struct GameInstaller: Sendable {
             }
         }
         handle.write(Data("[Magic Kettle] Installer exit \(status)\n".utf8))
+    }
+}
+
+extension GameInstaller {
+    /// A package's name without the version, architecture and language that follow it: Tauri names Gale's
+    /// `Gale_1.23.3_x64_en-US.msi`, and the game was called that, folder and card alike.
+    static func withoutRelease(_ name: String) -> String {
+        guard let release = name.firstMatch(of: /[ _-]v?\d+(\.\d+)+([ _-].*)?$/),
+              release.range.lowerBound > name.startIndex else { return name }
+        return String(name[..<release.range.lowerBound])
     }
 }

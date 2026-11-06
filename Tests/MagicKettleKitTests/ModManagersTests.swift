@@ -41,3 +41,21 @@ import Testing
         #expect(overrides.split(separator: ";").contains("powershell.exe=n,b"))
     }
 }
+
+/// Gale draws its window with WebView2, which it links in; Magic Kettle has to see that to install the runtime.
+@Suite struct WebView2Tests {
+    @Test func theLinkedInLoaderIsFoundByItsRuntimeDLLsName() throws {
+        let marker = Data("EmbeddedBrowserWebView".utf16.flatMap { [UInt8($0 & 0xFF), UInt8($0 >> 8)] })
+        #expect(WebView2.containsLoader(Data(repeating: 0, count: 100) + marker + Data([0, 0])))
+        #expect(!WebView2.containsLoader(Data("EmbeddedBrowserWebView".utf8)))
+    }
+
+    @Test func aProgramCarryingTheLoaderUsesWebView2() throws {
+        let temp = try TempFolder()
+        let exe = temp.url.appending(path: "launcher.exe")
+        try Data("MZ".utf8).write(to: exe)
+        #expect(WebView2.isUsed(by: exe, imports: [], filesBeside: ["webview2loader.dll"]))
+        #expect(WebView2.isUsed(by: exe, imports: ["webview2loader.dll"], filesBeside: []))
+        #expect(!WebView2.isUsed(by: exe, imports: ["user32.dll"], filesBeside: ["launcher.exe"]))
+    }
+}

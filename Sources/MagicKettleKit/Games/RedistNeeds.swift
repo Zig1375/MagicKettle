@@ -16,11 +16,15 @@ public struct RedistNeeds: Sendable, Equatable {
         public var missing: [String: Set<String>]
         /// The shared frameworks a .NET program asks for, as `Microsoft.NETCore.App/8`.
         public var frameworks: [String]
+        /// The program draws its window with WebView2 (`WebView2`).
+        public var webView2: Bool
 
-        public init(architecture: String, missing: [String: Set<String>] = [:], frameworks: [String] = []) {
+        public init(architecture: String, missing: [String: Set<String>] = [:], frameworks: [String] = [],
+                    webView2: Bool = false) {
             self.architecture = architecture
             self.missing = missing
             self.frameworks = frameworks
+            self.webView2 = webView2
         }
     }
 
@@ -36,6 +40,9 @@ public struct RedistNeeds: Sendable, Equatable {
                 return redist.architecture == evidence.architecture && redist.provides.contains { provided in
                     evidence.frameworks.contains { $0.caseInsensitiveCompare(provided) == .orderedSame }
                 }
+            case .webview2?:
+                // One runtime serves 32-bit and 64-bit programs alike, as on 64-bit Windows.
+                return evidence.webView2
             case nil:
                 return false
             }
@@ -77,6 +84,7 @@ public struct RedistNeeds: Sendable, Equatable {
         let config = folder.appending(path: name + ".runtimeconfig.json")
         evidence.frameworks = (try? Data(contentsOf: config)).map { frameworks(inRuntimeConfig: $0, files: files) }
             ?? []
+        evidence.webView2 = WebView2.isUsed(by: executable, imports: info.imports, filesBeside: files)
         return evidence
     }
 

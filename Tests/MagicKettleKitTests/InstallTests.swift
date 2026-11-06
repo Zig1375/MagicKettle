@@ -263,6 +263,11 @@ private let fixtures = URL(filePath: #filePath).deletingLastPathComponent()
         #expect(GameInstaller.suggestedName(installer: URL(filePath: "/Downloads/inst/Probe MSI Game.msi"))
             == "Probe MSI Game")
         #expect(GameInstaller.suggestedName(installer: URL(filePath: "/Downloads/Fallout 2/setup.msi")) == "Fallout 2")
+        #expect(GameInstaller.suggestedName(installer: URL(filePath: "/Downloads/Gale_1.23.3_x64_en-US.msi"))
+            == "Gale")
+        #expect(GameInstaller.withoutRelease("Tool-v2.0") == "Tool")
+        #expect(GameInstaller.withoutRelease("Fallout 2") == "Fallout 2")
+        #expect(GameInstaller.withoutRelease("1.5.2") == "1.5.2")
     }
 
     @Test func theDefaultFolderIsUnderGamesWithASafeName() {
@@ -302,6 +307,8 @@ private let fixtures = URL(filePath: #filePath).deletingLastPathComponent()
             == ["/x/setup.exe"])
         #expect(installer.command(for: plan(.windowsInstaller), folder: #"G:\G"#, bottle: bottle).prefix(3)
             == ["msiexec", "/i", #"D:\SETUP\SETUP.EXE"#])
+        #expect(installer.command(for: plan(.windowsInstaller), folder: #"G:\G"#, bottle: bottle).last
+            == "WIXUI_EXITDIALOGOPTIONALCHECKBOX=0")
         #expect(installer.command(for: plan(.nsis), folder: #"G:\Probe Game"#, bottle: bottle)
             == [#"D:\SETUP\SETUP.EXE"#, #"/D=G:\Probe"#, "Game"])
     }

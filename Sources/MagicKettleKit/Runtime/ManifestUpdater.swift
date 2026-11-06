@@ -20,6 +20,8 @@ public struct ManifestUpdater: Sendable {
     /// Microsoft's own download servers, the only place its runtimes (`RuntimeManifest.Redist`) may come from.
     static let allowedRedistHosts: Set<String> = [
         "download.microsoft.com", "download.visualstudio.microsoft.com", "builds.dotnet.microsoft.com",
+        // Where Microsoft's own link for the WebView2 Runtime's standalone installer leads.
+        "msedge.sf.dl.delivery.mp.microsoft.com",
     ]
 
     /// What was last fetched, and when.
@@ -61,13 +63,20 @@ public struct ManifestUpdater: Sendable {
     }
 
     /// The cached list wins unless it is older than the app: a new app version may ship runtimes the cache
-    /// from last week doesn't know about yet. A cached list from before a section existed takes the app's.
+    /// from last week doesn't know about yet. A cached list from before a section existed takes the app's, and
+    /// one from before a Microsoft runtime was added gets the app's entry for it: Gale asked for WebView2, which
+    /// this app ships, and the cached list without it left Gale saying "Could not find the WebView2 Runtime".
     static func choose(bundled: RuntimeManifest, cached: RuntimeManifest?) -> RuntimeManifest {
         guard var cached else { return bundled }
         let known = Set(cached.runtimes.map(\.id))
         guard bundled.runtimes.allSatisfy({ known.contains($0.id) }) else { return bundled }
         cached.rtps = cached.rtps ?? bundled.rtps
-        cached.redists = cached.redists ?? bundled.redists
+        if let appRedists = bundled.redists {
+            let cachedRedists = cached.redists ?? []
+            cached.redists = cachedRedists + appRedists.filter { redist in
+                !cachedRedists.contains { $0.id == redist.id }
+            }
+        }
         return cached
     }
 

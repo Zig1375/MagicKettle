@@ -86,6 +86,9 @@ public struct RuntimeManifest: Codable, Sendable, Equatable {
             case vcrun
             /// .NET: `provides` lists its shared frameworks by major version, `Microsoft.NETCore.App/8`.
             case dotnet
+            /// Microsoft Edge WebView2 Runtime: `provides` is `webview2`; `RedistNeeds` asks for it when a program
+            /// uses it (`WebView2`), whatever its bitness.
+            case webview2
         }
 
         /// Names it in a bottle's marker; a plain path component, `vcrun2010-x86`.
