@@ -123,6 +123,48 @@ private let probes = URL(filePath: #filePath).deletingLastPathComponent().deleti
         let dos = ExecutableInfo(format: .dos, imports: [], productName: nil, icon: nil, dpiAware: false)
         #expect(RedistNeeds.read(executable: exe, info: dos) == nil)
     }
+
+    @Test func aSingleFileProgramIsReadFromInsideItsExe() throws {
+        let folder = FileManager.default.temporaryDirectory.appending(path: "redist-\(UUID().uuidString)")
+        try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: folder) }
+        let exe = folder.appending(path: "HedgeModManager.exe")
+        try singleFileBundle(runtimeConfig: net8).write(to: exe)
+        let info = ExecutableInfo(format: .pe64, imports: [], productName: nil, icon: nil, dpiAware: false)
+        let evidence = try #require(RedistNeeds.read(executable: exe, info: info))
+        #expect(evidence.frameworks == ["Microsoft.NETCore.App/8"])
+        #expect(RedistNeeds.needed(evidence, from: [dotnet8]).map(\.id) == ["dotnet8-x64"])
+    }
+
+    @Test func aPlainAppHostHasNoBundledConfig() {
+        var host = Data(repeating: 0, count: 64)
+        host.append(Data(count: 8))
+        host.append(DotNetBundle.signature)
+        #expect(DotNetBundle.runtimeConfig(inBundle: host) == nil)
+        #expect(DotNetBundle.runtimeConfig(inBundle: Data("MZ".utf8)) == nil)
+        #expect(DotNetBundle.runtimeConfig(inBundle: singleFileBundle(runtimeConfig: net8, major: 1)) == nil)
+    }
+}
+
+/// An exe laid out as `dotnet publish -p:PublishSingleFile=true` writes it: the apphost with the header offset
+/// before the bundle signature, the files, then the header with the `runtimeconfig.json`'s offset and size.
+private func singleFileBundle(runtimeConfig: Data, major: Int32 = 6) -> Data {
+    func bytes<T: FixedWidthInteger>(_ value: T) -> Data { withUnsafeBytes(of: value.littleEndian) { Data($0) } }
+    var data = Data("MZ".utf8) + Data(count: 30)
+    let offsetAt = data.count
+    data.append(Data(count: 8))
+    data.append(DotNetBundle.signature)
+    let configAt = data.count
+    data.append(runtimeConfig)
+    let header = data.count
+    data.replaceSubrange(offsetAt..<offsetAt + 8, with: bytes(Int64(header)))
+    let bundleID = Data("jyEeWz9udQ_5".utf8)
+    data.append(bytes(major) + bytes(Int32(0)) + bytes(Int32(1)))
+    data.append(UInt8(bundleID.count))
+    data.append(bundleID)
+    data.append(bytes(Int64(0)) + bytes(Int64(0)))
+    data.append(bytes(Int64(configAt)) + bytes(Int64(runtimeConfig.count)) + bytes(UInt64(0)))
+    return data
 }
 
 @Suite struct RedistInstallerTests {

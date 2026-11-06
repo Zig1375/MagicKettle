@@ -19,6 +19,9 @@ extension LibraryModel {
             case needsSteam(GameID)
             /// A DirectX 12 game, and D3DMetal isn't added yet (Settings › DirectX 12), with how Magic Kettle knows.
             case needsDirectX12(DirectX12Need)
+            /// A mod manager's first launch with several stores installed: which store's games it works with
+            /// (`GameRecord.storeChoices`).
+            case chooseStore(GameID)
         }
 
         let id = UUID()

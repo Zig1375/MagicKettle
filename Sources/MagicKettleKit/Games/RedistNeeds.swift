@@ -75,8 +75,8 @@ public struct RedistNeeds: Sendable, Equatable {
         }
         let name = executable.deletingPathExtension().lastPathComponent
         let config = folder.appending(path: name + ".runtimeconfig.json")
-        evidence.frameworks = (try? Data(contentsOf: config)).map { frameworks(inRuntimeConfig: $0, files: files) }
-            ?? []
+        let configData = (try? Data(contentsOf: config)) ?? DotNetBundle.runtimeConfig(in: executable)
+        evidence.frameworks = configData.map { frameworks(inRuntimeConfig: $0, files: files) } ?? []
         return evidence
     }
 

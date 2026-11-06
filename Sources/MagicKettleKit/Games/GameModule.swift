@@ -4,8 +4,9 @@ import Foundation
 /// for a game reaches every player without an app release. Before We Leave from the Epic Games Store showed a black
 /// window with DXVK, the automatic choice for Direct3D 11, and runs with DXMT; its module says so.
 ///
-/// Only what this app applies is read: the `launch` action. Other actions and fields are skipped, and values are
-/// kept as strings, so a module written for a newer app is applied in part instead of making the index unreadable.
+/// Only what this app applies is read: the `launch` action and the `cover`. Other actions and fields are skipped, and
+/// values are kept as strings, so a module written for a newer app is applied in part instead of making the index
+/// unreadable.
 public struct GameModule: Codable, Sendable, Equatable {
     public var id: String
     public var revision: Int
@@ -13,10 +14,12 @@ public struct GameModule: Codable, Sendable, Equatable {
     public var name: String
     public var match: Match?
     public var requires: Requires?
+    /// Empty for a module that only gives a cover.
     public var fixes: [Group]
+    public var cover: Cover?
 
     public init(id: String, revision: Int, format: Int, name: String, match: Match?, requires: Requires? = nil,
-                fixes: [Group]) {
+                fixes: [Group], cover: Cover? = nil) {
         self.id = id
         self.revision = revision
         self.format = format
@@ -24,6 +27,59 @@ public struct GameModule: Codable, Sendable, Equatable {
         self.match = match
         self.requires = requires
         self.fixes = fixes
+        self.cover = cover
+    }
+
+    enum CodingKeys: String, CodingKey { case id, revision, format, name, match, requires, fixes, cover }
+
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(String.self, forKey: .id)
+        revision = try container.decode(Int.self, forKey: .revision)
+        format = try container.decode(Int.self, forKey: .format)
+        name = try container.decode(String.self, forKey: .name)
+        match = try container.decodeIfPresent(Match.self, forKey: .match)
+        requires = try container.decodeIfPresent(Requires.self, forKey: .requires)
+        fixes = try container.decodeIfPresent([Group].self, forKey: .fixes) ?? []
+        // A cover this app can't read leaves the module's fixes working.
+        cover = try? container.decodeIfPresent(Cover.self, forKey: .cover)
+    }
+
+    /// The picture for the game's card (`ModuleCovers`): `from` is its path under the repository's `files/`, pinned
+    /// by the SHA-256 and size the index gives it.
+    public struct Cover: Codable, Sendable, Equatable {
+        public var from: String
+        public var sha256: String
+        public var size: Int
+        /// Where the program's own icon, from the player's exe, goes over the picture.
+        public var icon: IconPlace?
+
+        public init(from: String, sha256: String, size: Int, icon: IconPlace? = nil) {
+            self.from = from
+            self.sha256 = sha256
+            self.size = size
+            self.icon = icon
+        }
+    }
+
+    /// The icon's centre (`x`, `y` from the top left) and side (`size`), as fractions of the cover's width and
+    /// height. Sonic Mania's mod manager has no license, so MagicKettle-Games can't carry its icon, but the player's
+    /// own copy has it: the cover leaves room, and the app draws it there.
+    public struct IconPlace: Codable, Sendable, Equatable {
+        public var x: Double
+        public var y: Double
+        public var size: Double
+
+        public init(x: Double, y: Double, size: Double) {
+            self.x = x
+            self.y = y
+            self.size = size
+        }
+
+        /// Inside the cover and not empty; anything else is not drawn.
+        public var isUsable: Bool {
+            (0...1).contains(x) && (0...1).contains(y) && size > 0 && size <= 1
+        }
     }
 
     public struct Match: Codable, Sendable, Equatable {
@@ -31,12 +87,16 @@ public struct GameModule: Codable, Sendable, Equatable {
         public var gog: [String]?
         /// `namespace:item:app`, as `GameRecord.storeID` keeps an Epic game.
         public var epic: [String]?
+        /// ProductNames, whatever the exe is called: r2modman's download carries its version in its file name.
+        public var product: [String]?
         public var exe: [Exe]?
 
-        public init(steam: [String]? = nil, gog: [String]? = nil, epic: [String]? = nil, exe: [Exe]? = nil) {
+        public init(steam: [String]? = nil, gog: [String]? = nil, epic: [String]? = nil, product: [String]? = nil,
+                    exe: [Exe]? = nil) {
             self.steam = steam
             self.gog = gog
             self.epic = epic
+            self.product = product
             self.exe = exe
         }
     }

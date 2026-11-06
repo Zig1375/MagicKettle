@@ -68,11 +68,21 @@ public struct GameIdentifier: Sendable {
 
         // Running Among Us's exe from Steam's folder made a second record for it, wrote `.magickettle` into Steam's
         // game folder and started the game without Steam, which it can't run without.
-        if let record = Self.storeGame(at: Self.key(exe), in: library.games) {
+        if let record = Self.storeGame(at: Self.key(exe), in: library.games), record.runsWith != nil
+            || !isModManagerInStore(exe) {
             return Result(record: record, method: .store)
         }
         if let store = storeBottle(containing: exe) {
-            throw IdentifyError.notAStoreGame(store, path: exe.path(percentEncoded: false))
+            // A mod manager kept in its game's folder (Sonic Mania's ManiaModManager works on the folder it is in) is
+            // a program of its own that runs with that store, not the game: opening it started Sonic Mania.
+            guard isModManagerInStore(exe) else {
+                throw IdentifyError.notAStoreGame(store, path: exe.path(percentEncoded: false))
+            }
+            var record = newRecord(exe: exe, folder: exeFolder, now: now)
+            record.runsWith = store
+            record.storeChoices = nil
+            library[record.id] = record
+            return Result(record: record, method: .new)
         }
 
         if let (folder, id) = findMarker(from: exeFolder) {
@@ -138,6 +148,13 @@ public struct GameIdentifier: Sendable {
         games.first {
             $0.store == nil && !$0.hasMarker && key(URL(filePath: $0.executable)).lowercased() == exe.lowercased()
         }
+    }
+
+    /// A mod manager inside a store's Windows, which can only run with that store.
+    func isModManagerInStore(_ exe: URL) -> Bool {
+        storeBottle(containing: exe) != nil
+            && ModManagers.isModManager(productName: (try? ExecutableInfo.read(exe))?.productName,
+                                        exeName: exe.lastPathComponent)
     }
 
     /// The store whose bottle `exe` is in, where only the store writes.
@@ -215,17 +232,25 @@ public struct GameIdentifier: Sendable {
     }
 
     private func newRecord(exe: URL, folder: URL, now: Date) -> GameRecord {
-        let name = Self.name(exe: exe, root: folder, rootIsShared: isStopFolder(folder))
+        let product = (try? ExecutableInfo.read(exe))?.productName
+        // A program the game modules know is called what its module calls it: HedgeModManager 8's exe says
+        // "HedgeModManager.UI", and its card was named that.
+        let module = GameModules.find(for: GameModules.Game(store: nil, storeID: nil, executable: exe,
+                                                            productName: product),
+                                      in: GameModulesUpdater(paths: paths).current().modules,
+                                      app: GameModules.appVersion)
+        let name = module?.name ?? Self.name(exe: exe, root: folder, rootIsShared: isStopFolder(folder))
         // Whole seconds, the precision Games.json keeps, so a record reads back equal to what was saved.
         let added = Date(timeIntervalSince1970: now.timeIntervalSince1970.rounded(.down))
         var record = GameRecord(id: .make(), name: name, executable: exe.path(percentEncoded: false),
                                 folder: folder.path(percentEncoded: false), hasMarker: false, addedAt: added)
         record.retina = SharedSettings.newGameRetina(paths: paths)
         // A mod manager runs beside the store's games from its first launch, without the player doing anything.
-        if ModManagers.isModManager(productName: (try? ExecutableInfo.read(exe))?.productName,
-                                    exeName: exe.lastPathComponent) {
+        if ModManagers.isModManager(productName: product, exeName: exe.lastPathComponent) {
             let client = StoreClient(paths: paths)
             record.runsWith = ModManagers.store(installed: Set(Store.allCases.filter(client.isInstalled)))
+            record.storeChoices = GameRecord.storeChoices(
+                supported: ModManagers.stores(productName: product, exeName: exe.lastPathComponent))
         }
         return record
     }

@@ -151,10 +151,13 @@ public struct RedistInstaller: Sendable {
     }
 
     /// Downloads the installer and runs it in `bottle`, which must be idle; Wine is down again afterwards.
-    /// - Parameter windows: the game's Windows version, put back afterwards. Microsoft's installers run on
-    ///   Windows 10: .NET 5 and later refuse anything older, and an XP game may still be built with Visual C++ 2015.
+    /// - Parameters:
+    ///   - windows: the game's Windows version, put back afterwards. Microsoft's installers run on Windows 10:
+    ///     .NET 5 and later refuse anything older, and an XP game may still be built with Visual C++ 2015.
+    ///   - shared: a store's bottle, which keeps its Windows version and its Wine running: stopping Wine there
+    ///     would close the store's client. A mod manager runs in Steam's: HedgeModManager needs .NET 8 there.
     public func install(_ redist: RuntimeManifest.Redist, into bottle: URL, runtimeFolder: URL,
-                        windows: WindowsVersion,
+                        windows: WindowsVersion, shared: Bool = false,
                         progress: @escaping @Sendable (Phase) -> Void = { _ in }) async throws -> Result {
         let download = try await Downloader().fetch(redist, into: paths.downloads) {
             progress(.downloading(received: $0, total: redist.size))
@@ -166,8 +169,10 @@ public struct RedistInstaller: Sendable {
         let environment = WineEnvironment.make(host: host, bottle: bottle.path,
                                                fastSync: WineEnvironment.fastSync(for: nil, wine: wine))
         // Wine must be down to change the Windows version, and a warmed bottle's server may still be up.
-        _ = try? await ProcessRunner.run(wine.wineserver.path, ["-k"], environment: environment, timeout: 20)
-        let older = windows == .windowsXP || windows == .windows7
+        if !shared {
+            _ = try? await ProcessRunner.run(wine.wineserver.path, ["-k"], environment: environment, timeout: 20)
+        }
+        let older = !shared && (windows == .windowsXP || windows == .windows7)
         if older { try BottleManager.setWindowsVersion(.windows10, bottle: bottle) }
 
         // Wine starts a program by its extension, and the download is named by its hash.
@@ -182,7 +187,9 @@ public struct RedistInstaller: Sendable {
         defer { Self.restore(standIns) }
         let run = try await ProcessRunner.run(wine.wine.path, [setup.path(percentEncoded: false)] + redist.arguments,
                                               environment: environment, timeout: 20 * 60)
-        _ = try? await ProcessRunner.run(wine.wineserver.path, ["-k"], environment: environment, timeout: 20)
+        if !shared {
+            _ = try? await ProcessRunner.run(wine.wineserver.path, ["-k"], environment: environment, timeout: 20)
+        }
         if older { try BottleManager.setWindowsVersion(windows, bottle: bottle) }
         try Task.checkCancellation()
 

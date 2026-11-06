@@ -24,7 +24,8 @@ public enum GameModules {
     }
 
     /// The module for `game`, most reliable match first: its store and id there, the exe's SHA-256, its name with
-    /// its ProductName, its name alone. Modules in a format this app doesn't know, or for a newer app, are skipped.
+    /// its ProductName, its ProductName alone, its name alone. Modules in a format this app doesn't know, or for a
+    /// newer app, are skipped.
     /// - Parameter sha256: the exe's SHA-256, asked for only when a module matches by it.
     public static func find(for game: Game, in modules: [GameModule], app: Version?,
                             sha256: () -> String? = { nil }) -> GameModule? {
@@ -49,6 +50,11 @@ public enum GameModules {
             $0.1.sha256 == nil && $0.1.product?.caseInsensitiveCompare(product) == .orderedSame
         }) {
             return found.0
+        }
+        if let product, !product.isEmpty, let found = usable.first(where: { module in
+            module.match?.product?.contains { $0.caseInsensitiveCompare(product) == .orderedSame } == true
+        }) {
+            return found
         }
         return exes.first { $0.1.sha256 == nil && $0.1.product == nil }?.0
     }

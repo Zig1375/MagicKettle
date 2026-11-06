@@ -77,7 +77,9 @@ final class ComponentsModel {
         guard autoCheck else { return }
         // The settings Magic Kettle knows for particular games, fetched whole and quietly; the next launch uses them.
         let modules = GameModulesUpdater(paths: paths)
-        if GameModulesUpdater.isDue(lastChecked: modules.cached()?.checkedAt) { _ = try? await modules.check() }
+        if GameModulesUpdater.isDue(lastChecked: modules.cached()?.checkedAt), let index = try? await modules.check() {
+            ModuleCovers.prune(keeping: index, paths: paths)
+        }
         guard ManifestUpdater.isDue(lastChecked: updater.cached()?.checkedAt) else { return }
         await checkQuietly()
         // The new runtime replaces the current one; games move to it at their next launch.

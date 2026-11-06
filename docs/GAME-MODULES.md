@@ -143,7 +143,9 @@ MagicKettle-Games/
    игры из Galaxy, и совпадает с `match.gog`. Это новое для `GameIdentifier`: прочитать файл при добавлении игры.
 3. **SHA-256 exe** — точная версия.
 4. **Имя exe + ProductName** из версии exe — как сейчас `KnownGame`.
-5. **Имя exe без ProductName** — только для редких имён. CI отклоняет модуль с общим именем без `product` или
+5. **Только ProductName** (`match.product`), как бы ни назывался файл: у r2modman в имени файла версия
+   (`r2modman-3.2.21.exe`). CI отклоняет общие названия (`Game`, `Launcher`, `Unity`, `Electron`…).
+6. **Имя exe без ProductName** — только для редких имён. CI отклоняет модуль с общим именем без `product` или
    `sha256` (`game.exe`, `launcher.exe`, `start.exe`, `UnityPlayer`-заготовки, `DOSBox.exe`, `RPG_RT.exe`,
    `Game.exe` RPG Maker…).
 
@@ -217,6 +219,24 @@ wineserver бутылки остановлен, как сейчас.
   создать файл с одними значениями модуля.
 - Значения, которые игрок поменял сам после модуля, модуль не перезаписывает: запоминается, что записал модуль, и
   правка повторяется, только пока в файле всё ещё прежнее значение или значение модуля.
+
+### `cover` — обложка карточки
+
+Программа без магазина показывает на карточке только маленький значок из exe. Менеджеры модов Magic Kettle знает
+точно (`ModManagers`), и их модули дают обложку: `"cover": { "from": "r2modman/cover.png" }`. Модуль может состоять
+из одной обложки, без `fixes`.
+
+- Картинка 600 × 900, PNG или JPEG (по первым байтам, не по расширению), до 1 МБ, лежит в `files/<slug>/`, у неё
+  есть `credits` с лицензией. Обложки делаются в Magic Kettle: логотип программы из её репозитория на фоне её цветов
+  и её название.
+- SHA-256 и размер считает `tools/build-index`. Приложение (`ModuleCovers`) скачивает картинку один раз с
+  `raw.githubusercontent.com/Zig1375/MagicKettle-Games/<commit>/files/…` и хранит в `Artwork/module-<sha256>.<ext>`,
+  только если совпали SHA-256, размер и заголовок. Обложка, которой больше нет ни в одном модуле, удаляется после
+  проверки индекса.
+- `cover.icon` (`{ "x": 0.5, "y": 0.36, "size": 0.33 }`, доли обложки): поверх обложки приложение рисует значок
+  программы из exe игрока. Так у программы, чей значок репозиторий раздавать не может (у Sonic Mania Mod Manager
+  нет лицензии, у SA Mod Manager на значке Соник), обложка — это фон, а значок берётся с Mac игрока.
+- Порядок на карточке: обложка, выбранная игроком, потом обложка магазина, потом обложка модуля, потом значок.
 
 ### `files` — свой файл рядом с игрой
 
@@ -379,7 +399,8 @@ revert <игра>`.
 `tools/check.py`, `tools/build_index.py` и CI, который собирает `games.json`; `GameModuleIndex`, `GameModulesUpdater`
 (раз в сутки, копия в приложении, свежее выигрывает), `GameModules.find` (магазин, SHA-256 exe, имя с ProductName,
 имя), `requires.minApp` и `requires.wine`, условия `wine`, `store`, `exeSha256`, и из `launch` — бэкенд (`prefer`,
-`require`) и версия Windows с приоритетами из «Порядка приоритетов»; строка `[Magic Kettle] Game settings <id> revision
+`require`) и версия Windows с приоритетами из «Порядка приоритетов»; `match.product` и обложки `cover`
+(`ModuleCovers`, первые — менеджеры модов); строка `[Magic Kettle] Game settings <id> revision
 <n>` в логе запуска; `kettle module list|show|update`. Группа с условием `backend` или `steamBuild` пока не
 применяется. Остальное из этапа 1 впереди: `retina`, `scaling`, `chromium`, `fastSync`, `arguments`, `environment`,
 `dllOverrides`, `components`, общие модули, `kettle module needs`, перенос `KnownGame`, строка в «Дополнительно».

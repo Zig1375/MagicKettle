@@ -7,12 +7,36 @@ import Testing
     @Test func modManagersAreKnownByTheirProductName() {
         #expect(ModManagers.isModManager(productName: "r2modman", exeName: "r2modman-3.2.21.exe"))
         #expect(ModManagers.isModManager(productName: "HedgeModManager", exeName: "HedgeModManager.exe"))
+        // HedgeModManager 7.15's exe spells its name with spaces; the Nexus Mods app with a dot.
+        #expect(ModManagers.isModManager(productName: "Hedge Mod Manager", exeName: "HedgeModManager.exe"))
+        #expect(ModManagers.isModManager(productName: "NexusMods.App", exeName: "NexusMods.App.exe"))
+        #expect(ModManagers.isModManager(productName: nil, exeName: "HedgeModManager.exe"))
+        // HedgeModManager 8.0 beta 7, as downloaded: its exe's ProductName is its main assembly's.
+        #expect(ModManagers.isModManager(productName: "HedgeModManager.UI", exeName: "HedgeModManager.exe"))
+        #expect(ModManagers.isModManager(productName: nil, exeName: "NexusMods.App-0.9.exe"))
+        #expect(ModManagers.isModManager(productName: nil, exeName: "Thunderstore Mod Manager - Installer.exe"))
+        #expect(!ModManagers.isModManager(productName: nil, exeName: "Galeforce-1.0.exe"))
         #expect(ModManagers.isModManager(productName: nil, exeName: "r2modman-Setup-3.2.21.exe"))
         #expect(!ModManagers.isModManager(productName: "Muck", exeName: "Muck.exe"))
         #expect(!ModManagers.isModManager(productName: "Muck", exeName: "r2modman.exe"))
     }
 
-    /// It runs with Steam when Steam is there, else Epic, else on its own.
+    /// Every known manager works with Steam's and Epic's games, so it asks between them; anything else never asks.
+    @Test func aManagerAsksBetweenTheStoresItWorksWith() {
+        let hedge = ModManagers.stores(productName: "HedgeModManager.UI", exeName: "HedgeModManager.exe")
+        #expect(hedge == [.steam, .epic])
+        #expect(GameRecord.storeChoices(supported: hedge) == [.steam, .epic])
+        #expect(ModManagers.stores(productName: nil, exeName: "r2modman-Setup-3.2.21.exe") == [.steam, .epic])
+        #expect(ModManagers.stores(productName: "Muck", exeName: "r2modman.exe").isEmpty)
+        // SA Mod Manager's games are only in Steam: a manager for one store only has nothing to ask.
+        let sonicAdventure = ModManagers.stores(productName: "SAModManager", exeName: "SAModManager.exe")
+        #expect(sonicAdventure == [.steam])
+        #expect(GameRecord.storeChoices(supported: sonicAdventure) == nil)
+        #expect(GameRecord.storeChoices(supported: [.steam]) == nil)
+        #expect(GameRecord.storeChoices(supported: []) == nil)
+    }
+
+    /// It starts with Steam when Steam is there, else Epic, else on its own; with both, each launch asks.
     @Test func aModManagerRunsWithTheFirstInstalledStore() {
         #expect(ModManagers.store(installed: [.steam, .epic]) == .steam)
         #expect(ModManagers.store(installed: [.epic]) == .epic)

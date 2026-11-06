@@ -84,6 +84,13 @@ struct GameCard: View {
                 }))
                 .disabled(state != nil)
             }
+            // Reading the exe for what it supports waits for the click that turns asking on.
+            if game.storeChoices != nil || (game.runsWith != nil && library.installedStores.count > 1) {
+                Toggle("Ask Which Store at Launch", isOn: Binding(get: { game.storeChoices != nil }, set: { on in
+                    library.setAsksForStore(game, on)
+                }))
+                .disabled(state != nil)
+            }
         }
     }
 
@@ -285,6 +292,7 @@ struct GameCoverArt: View {
                 .resizable()
                 .interpolation(.high)
                 .scaledToFill()
+                .overlay { coverIcon }
                 .accessibilityHidden(true)
         } else {
             // No cover: the icon, a little above the middle, on a tint of its own colour.
@@ -294,6 +302,25 @@ struct GameCoverArt: View {
                 GameIconTile(game: game, library: library, size: iconSize, iconSize: iconSize, radius: iconSize * 0.24,
                              plain: true)
                     .offset(y: -iconSize * 0.15)
+            }
+        }
+    }
+}
+
+extension GameCoverArt {
+    /// The program's own icon from its exe, where its module's cover left room for it: Sonic Mania's mod manager
+    /// may not have its icon in MagicKettle-Games, but the player's copy carries it.
+    @ViewBuilder var coverIcon: some View {
+        if let place = library.coverIcons[game.id], let icon = library.icons[game.id] {
+            GeometryReader { geometry in
+                let side = geometry.size.width * place.size
+                Image(nsImage: icon)
+                    .resizable()
+                    .interpolation(.high)
+                    .scaledToFit()
+                    .frame(width: side, height: side)
+                    .shadow(color: .black.opacity(0.35), radius: side * 0.06, y: side * 0.03)
+                    .position(x: geometry.size.width * place.x, y: geometry.size.height * place.y)
             }
         }
     }

@@ -32,7 +32,10 @@ public enum GameWindows {
                 let process = procArguments(of: pid)
                 if let prefix, !inBottle(process.environment, prefix: prefix) { continue }
                 // A store game's bottle also holds the store's client, whose windows aren't the game's.
-                if let folder, !WineProcesses.runs(process.arguments.first ?? "", from: folder) { continue }
+                let bottle = prefix.map { URL(filePath: $0, directoryHint: .isDirectory) }
+                if let folder, !WineProcesses.runs(process.arguments.first ?? "", from: folder, bottle: bottle) {
+                    continue
+                }
             }
             result.append(pid)
         }

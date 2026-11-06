@@ -115,8 +115,17 @@ public enum GameSettings {
 
     /// Whether the player can have a program run with a store's games (`GameRecord.runsWith`): only their own
     /// programs, not a store's game, and not one installed inside its own Windows, whose files and settings would
-    /// stay behind there.
+    /// stay behind there. Nor one inside a store's Windows (ManiaModManager in Sonic Mania's folder): it can only
+    /// run with that store.
     public static func canRunWithStore(_ game: GameRecord, paths: AppPaths) -> Bool {
-        game.store == nil && canReset(game, paths: paths)
+        game.store == nil && canReset(game, paths: paths) && !isInStoreBottle(game, paths: paths)
+    }
+
+    static func isInStoreBottle(_ game: GameRecord, paths: AppPaths) -> Bool {
+        let exe = URL(filePath: game.executable).standardized.path(percentEncoded: false).lowercased()
+        return Store.allCases.contains { store in
+            let bottle = paths.bottle(forGame: store.bottleID).standardized.path(percentEncoded: false).lowercased()
+            return exe.hasPrefix(bottle.hasSuffix("/") ? bottle : bottle + "/")
+        }
     }
 }

@@ -63,15 +63,20 @@ public enum WineProcesses {
 
     /// Processes in `bottle` started from a program in the Windows folder `folder`.
     public static func game(in bottle: URL, folder: String) -> [pid_t] {
-        running(in: bottle).filter { runs($0.program, from: folder) }.map(\.pid)
+        running(in: bottle).filter { runs($0.program, from: folder, bottle: bottle) }.map(\.pid)
     }
 
     /// Whether the Windows program `program` is inside `folder`, compared as Windows does: without case, with
-    /// either slash.
-    static func runs(_ program: String, from folder: String) -> Bool {
+    /// either slash. A program Magic Kettle started by its Mac path keeps that path as its command line, so it is
+    /// turned into the Windows one first (C: inside `bottle`, Z: elsewhere): HedgeModManager, run with Steam from
+    /// Downloads, had its window up for four minutes and was closed as never having shown one.
+    static func runs(_ program: String, from folder: String, bottle: URL? = nil) -> Bool {
         func normalized(_ path: String) -> String {
             path.replacingOccurrences(of: "/", with: "\\").lowercased()
         }
+        let root = URL(filePath: "/", directoryHint: .isDirectory)
+        let program = program.hasPrefix("/")
+            ? WindowsPath.windowsPath(of: URL(filePath: program), inBottle: bottle ?? root) : program
         let base = normalized(folder)
         let prefix = base.hasSuffix("\\") ? base : base + "\\"
         return normalized(program).hasPrefix(prefix)

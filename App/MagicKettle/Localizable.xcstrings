@@ -26298,6 +26298,162 @@
           }
         }
       }
+    },
+    "Which store is the game from?": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aus welchem Store ist das Spiel?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿De qué tienda es el juego?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De quelle boutique vient le jeu ?"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Da quale store viene il gioco?"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ゲームはどのストアのものですか？"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "게임이 어느 스토어의 것인가요?"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Из какого магазина игра?"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "游戏来自哪个商店？"
+          }
+        }
+      }
+    },
+    "Ask Which Store at Launch": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beim Start nach dem Store fragen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preguntar la tienda al iniciar"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demander la boutique au lancement"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chiedi lo store all'avvio"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "起動時にストアを確認"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "실행할 때 스토어 묻기"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Спрашивать магазин при запуске"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "启动时询问商店"
+          }
+        }
+      }
+    },
+    "%@ works with the games of one store at a time. Choose the store of the game you want to play with mods this time. To stop asking, right-click its card.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ arbeitet jeweils mit den Spielen eines Stores. Wähle den Store des Spiels, das du diesmal mit Mods spielen willst. Damit diese Frage nicht mehr kommt, klicke mit der rechten Maustaste auf die Karte."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ funciona con los juegos de una sola tienda a la vez. Elige la tienda del juego que quieres jugar con mods esta vez. Para que no vuelva a preguntar, haz clic derecho en su tarjeta."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ fonctionne avec les jeux d'une seule boutique à la fois. Choisissez la boutique du jeu auquel vous voulez jouer avec des mods cette fois. Pour ne plus être interrogé, faites un clic droit sur sa carte."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ funziona con i giochi di un solo store alla volta. Scegli lo store del gioco con cui vuoi giocare con le mod questa volta. Per non ricevere più questa domanda, fai clic destro sulla sua scheda."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ は一度に1つのストアのゲームで動作します。今回 Mod を入れて遊ぶゲームのストアを選んでください。今後確認しないようにするには、カードを右クリックします。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@은(는) 한 번에 한 스토어의 게임으로 작동합니다. 이번에 모드를 적용해 플레이할 게임의 스토어를 선택하세요. 더 이상 묻지 않게 하려면 카드를 오른쪽 클릭하세요."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ работает с играми одного магазина за раз. Выберите магазин игры, в которую хотите сейчас играть с модами. Чтобы больше не спрашивать, нажмите на карточку правой кнопкой."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 一次只能用于一个商店的游戏。请选择这次想用模组游玩的游戏所在的商店。如不想再被询问，请右键点按它的卡片。"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

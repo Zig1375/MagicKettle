@@ -17,7 +17,9 @@ public enum GameRemover {
     /// put the player's whole Downloads in the Trash; the same for a game on the Desktop or at the top of a disk.
     public static func trashTarget(for game: GameRecord, identifier: GameIdentifier) -> URL {
         let folder = URL(filePath: game.folder, directoryHint: .isDirectory)
-        return identifier.isStopFolder(folder) ? URL(filePath: game.executable) : folder
+        // A mod manager kept in a store game's folder: that folder is the game's, only the manager's exe is its own.
+        let inStore = game.store == nil && identifier.storeBottle(containing: URL(filePath: game.executable)) != nil
+        return identifier.isStopFolder(folder) || inStore ? URL(filePath: game.executable) : folder
     }
 
     private static func forget(_ game: GameRecord, paths: AppPaths) {
