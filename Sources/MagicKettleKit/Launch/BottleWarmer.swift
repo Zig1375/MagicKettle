@@ -143,7 +143,7 @@ struct WineWarmUp: WarmUpSteps {
     /// moved onto the current one first, as a launch does, when that runtime's template is ready (a clone, a
     /// second or two): after each runtime update the last played game started cold until it was played once.
     static func canWarm(_ game: GameRecord, bottleRuntime: String?, current: String, hasTemplate: Bool) -> Bool {
-        guard game.disc == nil, game.store == nil, let bottleRuntime else { return false }
+        guard game.disc == nil, game.bottleStore == nil, let bottleRuntime else { return false }
         return bottleRuntime == current || hasTemplate
     }
 

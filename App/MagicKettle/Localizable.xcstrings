@@ -4999,6 +4999,58 @@
         }
       }
     },
+    "Only %@%@ goes to the Trash; %@ stays. Until the Trash is emptied, it can be restored.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nur %1$@%2$@ kommt in den Papierkorb; %3$@ bleibt. Bis der Papierkorb geleert wird, lässt es sich wiederherstellen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Solo %1$@%2$@ va a la Papelera; %3$@ se queda. Hasta vaciar la Papelera, se puede recuperar."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seul %1$@%2$@ va à la Corbeille ; %3$@ reste. Tant que la Corbeille n’est pas vidée, il peut être restauré."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Solo %1$@%2$@ va nel Cestino; %3$@ resta. Finché il Cestino non viene svuotato, si può ripristinare."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@%2$@ だけがゴミ箱に入り、%3$@ は残ります。ゴミ箱を空にするまでは元に戻せます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@%2$@만 휴지통으로 이동하고 %3$@은(는) 그대로 남습니다. 휴지통을 비우기 전까지 복원할 수 있습니다."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "В Корзину попадёт только %1$@%2$@, а %3$@ останется. Пока Корзина не очищена, его можно вернуть."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "只有 %1$@%2$@ 会移到废纸篓，%3$@ 保留不动。清倒废纸篓之前都可以恢复。"
+          }
+        }
+      }
+    },
     "The game hasn't been started yet.": {
       "localizations": {
         "de": {
@@ -20462,6 +20514,58 @@
           "stringUnit": {
             "state": "translated",
             "value": "重新命名…"
+          }
+        }
+      }
+    },
+    "Run with %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mit %@ ausführen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ejecutar con %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lancer avec %@"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esegui con %@"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ と一緒に実行"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@와 함께 실행"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Запускать вместе с %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "与 %@ 一起运行"
           }
         }
       }

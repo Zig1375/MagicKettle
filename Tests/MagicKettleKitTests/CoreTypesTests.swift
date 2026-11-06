@@ -68,7 +68,16 @@ import Testing
     }
 
     @Test func menuBuilderIsAlwaysOff() {
-        #expect(WineEnvironment.make(host: [:], bottle: "/b")["WINEDLLOVERRIDES"] == "winemenubuilder.exe=d")
+        let overrides = WineEnvironment.make(host: [:], bottle: "/b")["WINEDLLOVERRIDES"] ?? ""
+        #expect(overrides.split(separator: ";").first == "winemenubuilder.exe=d")
+    }
+
+    /// BepInEx (Doorstop's `winhttp.dll`), MelonLoader (`version.dll`) and ASI loaders (`dinput8.dll`) sit next to
+    /// the game's exe and only load when Wine takes a game's own copy over its builtin one.
+    @Test func modLoadersInTheGameFolderLoad() {
+        let overrides = Set((WineEnvironment.make(host: [:], bottle: "/b")["WINEDLLOVERRIDES"] ?? "")
+            .split(separator: ";").map(String.init))
+        #expect(overrides.isSuperset(of: ["winhttp=n,b", "version=n,b", "dinput8=n,b"]))
     }
 
     @Test func userSettingsWinLast() {

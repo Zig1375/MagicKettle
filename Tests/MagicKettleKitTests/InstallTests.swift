@@ -72,6 +72,17 @@ private let fixtures = URL(filePath: #filePath).deletingLastPathComponent()
                                      start: Data()) == .installShield)
     }
 
+    /// r2modman's single-file download is NSIS that only unpacks and runs the program: a program, not an installer.
+    @Test func anElectronPortableExeIsAProgram() {
+        let nsis = info(manifest: #"<assemblyIdentity name="Nullsoft.NSIS.exehead"/>"#)
+        let text = #"SetEnvironmentVariable(t, t)i ("PORTABLE_EXECUTABLE_DIR", ""#
+        let script = Data(text.utf16.flatMap { [UInt8($0), 0] })
+        #expect(InstallerKind.detect(name: "r2modman-3.2.21.exe", info: nsis, start: Data("NullsoftInst".utf8) + script)
+            == nil)
+        #expect(InstallerKind.detect(name: "r2modman-Setup-3.2.21.exe", info: nsis, start: Data("NullsoftInst".utf8))
+            == .nsis)
+    }
+
     @Test func otherInstallersByNameOrDescription() {
         #expect(InstallerKind.detect(name: "SETUP.EXE", info: info(), start: Data()) == .other)
         #expect(InstallerKind.detect(name: "Fallout2Setup.exe", info: info(), start: Data()) == .other)

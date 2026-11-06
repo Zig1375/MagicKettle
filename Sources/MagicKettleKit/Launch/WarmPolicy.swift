@@ -21,7 +21,7 @@ public enum WarmPolicy {
     /// Store and disc games are never warmed (`WineWarmUp.canWarm`), so they don't count: after a game from Steam,
     /// nothing was warmed at all and every game started cold.
     public static func lastPlayed(_ games: [GameRecord]) -> GameRecord? {
-        games.filter { $0.store == nil && $0.disc == nil }
+        games.filter { $0.bottleStore == nil && $0.disc == nil }
             .compactMap { game in game.lastPlayed.map { (game, $0) } }.max { $0.1 < $1.1 }?.0
     }
 }

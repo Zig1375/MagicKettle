@@ -12,6 +12,14 @@ public enum GameRemover {
         }
     }
 
+    /// What "Delete from disk" moves to the Trash: the game's folder, or only its program when that folder is a
+    /// shared one. r2modman opened from Downloads had Downloads as its folder, and deleting it from disk would have
+    /// put the player's whole Downloads in the Trash; the same for a game on the Desktop or at the top of a disk.
+    public static func trashTarget(for game: GameRecord, identifier: GameIdentifier) -> URL {
+        let folder = URL(filePath: game.folder, directoryHint: .isDirectory)
+        return identifier.isStopFolder(folder) ? URL(filePath: game.executable) : folder
+    }
+
     private static func forget(_ game: GameRecord, paths: AppPaths) {
         let id = game.id
         let fileManager = FileManager.default

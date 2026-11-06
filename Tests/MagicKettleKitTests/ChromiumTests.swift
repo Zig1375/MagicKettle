@@ -4,6 +4,30 @@ import Synchronization
 import Testing
 
 @Suite struct ChromiumAppTests {
+    /// r2modman's one-file download: NSIS unpacking Electron, known by the variable its script sets. It starts
+    /// without the GPU (its title bar was see-through with it); other Chromium programs keep the GPU in-process.
+    @Test func aPortableElectronProgramStartsWithoutTheGPU() {
+        let script = Data(#"("PORTABLE_EXECUTABLE_DIR", ""#.utf16.flatMap { [UInt8($0), 0] })
+        #expect(ChromiumApp.isElectronPortable(Data("NullsoftInst".utf8) + script))
+        #expect(!ChromiumApp.isElectronPortable(Data("PORTABLE_EXECUTABLE_DIR".utf8)))
+
+        var info = ExecutableInfo(format: .pe32, imports: [], productName: nil, icon: nil, dpiAware: false)
+        #expect(ChromiumApp.firstMode(for: info) == nil)
+        info.chromium = true
+        #expect(ChromiumApp.firstMode(for: info) == .inProcessGPU)
+        info.electronPortable = true
+        #expect(ChromiumApp.firstMode(for: info) == .noGPU)
+        #expect(ChromiumApp.mode(remembered: .inProcessGPU, info: info) == .noGPU)
+        info.electronPortable = false
+        #expect(ChromiumApp.mode(remembered: .noGPU, info: info) == .noGPU)
+        // Unpacked, it runs from the user's temporary folder, where its window is looked for.
+        #expect(WineProcesses.runs(#"C:\users\me\AppData\Local\Temp\3LJZ\r2modman.exe"#,
+                                   from: ChromiumApp.portableFolder(user: "me")))
+        // Its graphics don't matter: one backend, the one Steam already runs in, so Steam isn't restarted.
+        #expect(AutoLaunch.withoutSearch([.wined3d, .dxmt, .dxvk], running: .dxvk) == [.dxvk])
+        #expect(AutoLaunch.withoutSearch([.wined3d, .dxmt, .dxvk], running: nil) == [.wined3d])
+    }
+
     @Test func chromiumProgramsAreToldByTheirFiles() {
         // NW.js 0.92 (an RPG Maker MV/MZ Game.exe is a renamed nw.exe).
         #expect(ChromiumApp.isChromium(imports: ["kernel32.dll", "nw_elf.dll"], filesBeside: []))

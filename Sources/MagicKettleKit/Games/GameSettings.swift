@@ -112,4 +112,11 @@ public enum GameSettings {
         let bottle = paths.bottle(forGame: game.id).standardized.path(percentEncoded: false)
         return !URL(filePath: game.executable).standardized.path(percentEncoded: false).hasPrefix(bottle)
     }
+
+    /// Whether the player can have a program run with a store's games (`GameRecord.runsWith`): only their own
+    /// programs, not a store's game, and not one installed inside its own Windows, whose files and settings would
+    /// stay behind there.
+    public static func canRunWithStore(_ game: GameRecord, paths: AppPaths) -> Bool {
+        game.store == nil && canReset(game, paths: paths)
+    }
 }

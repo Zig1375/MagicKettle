@@ -40,6 +40,8 @@ protocol StoreModule: Sendable {
     var launchesGames: Bool { get }
     /// What asks the running client to start a game; it starts the client first if it isn't running.
     func playArguments(storeID: String) -> [String]
+    /// What starts the client without showing its window (`StoreClient.startInBackground`).
+    var backgroundArguments: [String] { get }
     /// What opens the client on removing one of its games.
     func uninstallArguments(storeID: String) -> [String]
 
@@ -97,6 +99,7 @@ extension StoreModule {
     func clientArguments(clientReady: Bool) -> [String] { [] }
     var launchesGames: Bool { true }
     func uninstallArguments(storeID: String) -> [String] { [] }
+    var backgroundArguments: [String] { [] }
 
     func stillInstalled(_ record: GameRecord) -> Bool { false }
     var removesGamesWithoutClient: Bool { false }

@@ -18,6 +18,8 @@ public struct GameIdentifier: Sendable {
 
     public enum Method: String, Sendable, Equatable {
         case marker, copiedFolder, new, store
+        /// A program in a shared folder, which gets no `.magickettle`, found by its exe's path.
+        case path
     }
 
     public enum IdentifyError: Error, Equatable, CustomStringConvertible {
@@ -98,6 +100,11 @@ public struct GameIdentifier: Sendable {
         }
 
         let root = gameRoot(for: exeFolder)
+        // No `.magickettle` goes into Downloads or the Desktop, so a program there is known by its exe alone:
+        // opening r2modman from Downloads again made a second card for it, which searched for its settings anew.
+        if isStopFolder(root), let record = Self.unmarked(at: Self.key(exe), in: library.games) {
+            return Result(record: record, method: .path)
+        }
         var record = newRecord(exe: exe, folder: root, now: now)
         if !isStopFolder(root), (try? writeMarker(record.id, in: root)) != nil { record.hasMarker = true }
         library[record.id] = record
@@ -107,8 +114,15 @@ public struct GameIdentifier: Sendable {
     /// The store game `exe` (a `key`) belongs to: the one it is the recorded program of, or inside the folder of.
     /// The deepest folder wins, should one store game's folder hold another's. Paths compare ignoring case, as
     /// the Mac's disks and Windows do.
+    /// A program that runs with a store (`GameRecord.runsWith`) only by its own exe: it often sits in Downloads,
+    /// and its folder would claim every other exe there.
     static func storeGame(at exe: String, in games: [GameRecord]) -> GameRecord? {
         let exe = exe.lowercased()
+        if let program = games.first(where: {
+            $0.runsWith != nil && key(URL(filePath: $0.executable)).lowercased() == exe
+        }) {
+            return program
+        }
         let stored = games.filter { $0.store != nil }
         if let record = stored.first(where: { key(URL(filePath: $0.executable)).lowercased() == exe }) {
             return record
@@ -117,6 +131,13 @@ public struct GameIdentifier: Sendable {
             .map { (record: $0, folder: key(URL(filePath: $0.folder, directoryHint: .isDirectory)).lowercased()) }
             .filter { exe.hasPrefix($0.folder + "/") }
             .max { $0.folder.count < $1.folder.count }?.record
+    }
+
+    /// The player's own game without a `.magickettle` whose program is `exe` (a `key`), ignoring case.
+    static func unmarked(at exe: String, in games: [GameRecord]) -> GameRecord? {
+        games.first {
+            $0.store == nil && !$0.hasMarker && key(URL(filePath: $0.executable)).lowercased() == exe.lowercased()
+        }
     }
 
     /// The store whose bottle `exe` is in, where only the store writes.
@@ -200,6 +221,12 @@ public struct GameIdentifier: Sendable {
         var record = GameRecord(id: .make(), name: name, executable: exe.path(percentEncoded: false),
                                 folder: folder.path(percentEncoded: false), hasMarker: false, addedAt: added)
         record.retina = SharedSettings.newGameRetina(paths: paths)
+        // A mod manager runs beside the store's games from its first launch, without the player doing anything.
+        if ModManagers.isModManager(productName: (try? ExecutableInfo.read(exe))?.productName,
+                                    exeName: exe.lastPathComponent) {
+            let client = StoreClient(paths: paths)
+            record.runsWith = ModManagers.store(installed: Set(Store.allCases.filter(client.isInstalled)))
+        }
         return record
     }
 

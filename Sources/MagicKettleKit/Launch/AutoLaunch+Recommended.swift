@@ -9,6 +9,21 @@ extension AutoLaunch {
         retrying && order.count > 1 && game.backend == nil && game.chosenBackend == nil
     }
 
+    /// A single-file Electron program draws without the GPU (`ChromiumApp.mode`), so no graphics suits it better
+    /// than another: r2modman went through a first-launch search, and in Steam's Windows each backend tried
+    /// restarted Steam. It takes the Wine its store's client already runs in, or the plan's first.
+    func withoutSearch(_ order: [GraphicsBackend], for game: GameRecord, info: ExecutableInfo?,
+                       override: GraphicsBackend?) -> [GraphicsBackend] {
+        guard info?.electronPortable == true, override == nil, game.chosenBackend == nil else { return order }
+        let running = game.bottleStore.flatMap { StoreClient(paths: paths).runningWine($0) }
+        return Self.withoutSearch(order, running: running.map { BackendTree.backend(of: $0.root) })
+    }
+
+    /// One backend for a program whose graphics don't matter: the one its bottle already runs, else the first.
+    static func withoutSearch(_ order: [GraphicsBackend], running: GraphicsBackend?) -> [GraphicsBackend] {
+        [running ?? order.first ?? .dxvk]
+    }
+
     /// The backends this launch tries, in order.
     ///
     /// A game that has worked here keeps its backend: a game played for a while failed to start once, the launch
@@ -31,7 +46,7 @@ extension AutoLaunch {
             .filter { d3dmetal || $0 != .d3dmetal }
         // A store game is searched for like any other: Among Us hung on DXVK, and the player had to find DXMT
         // in Advanced. Another backend restarts the store's client in its Wine tree (`prepareForGame`).
-        return game.store == nil ? planned : storeOrder(planned, directX: info?.directX.max(), d3dmetal: d3dmetal)
+        return game.bottleStore == nil ? planned : storeOrder(planned, directX: info?.directX.max(), d3dmetal: d3dmetal)
     }
 
     /// A store game's order: everything in the bottle runs in one Wine tree, the client too. Steam's window

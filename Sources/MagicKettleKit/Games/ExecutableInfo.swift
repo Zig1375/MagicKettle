@@ -28,6 +28,9 @@ public struct ExecutableInfo: Sendable, Equatable {
     public var chromium = false
     /// Lowercased names of the files packed inside the exe (`EnigmaVirtualBox`).
     public var packedFiles: Set<String> = []
+    /// A single-file Electron program packed with NSIS (`ChromiumApp.isElectronPortable`): a program, not an
+    /// installer, and Chromium although no Chromium file is beside it.
+    public var electronPortable = false
 
     public var directX: Set<ExecutableTraits.DirectX> {
         var result = Set<ExecutableTraits.DirectX>()
@@ -58,7 +61,11 @@ public struct ExecutableInfo: Sendable, Equatable {
     public static func read(_ url: URL) throws -> ExecutableInfo {
         let data = try Data(contentsOf: url, options: .alwaysMapped)
         var info = try PEReader(data: data).read()
-        info.chromium = ChromiumApp.isChromium(executable: url, imports: info.imports, packed: info.packedFiles)
+        // Only an NSIS exe is searched, and only its first 4 MB of mapped pages.
+        info.electronPortable = info.manifest?.lowercased().contains("nullsoft") == true
+            && ChromiumApp.isElectronPortable(data.prefix(4 << 20))
+        info.chromium = info.electronPortable
+            || ChromiumApp.isChromium(executable: url, imports: info.imports, packed: info.packedFiles)
         return info
     }
 }

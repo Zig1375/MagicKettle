@@ -12,4 +12,20 @@ extension GameLauncher {
                                       dpiAware: retina, screen: screen)
         return (scale, GameScaling.dpi(for: scale))
     }
+
+    /// The folder, as Windows sees it, whose processes are the game when it shares a store's bottle: the client
+    /// keeps the bottle busy, so the game is over when they are. Nil for a game in a bottle of its own. A
+    /// single-file Electron program runs from where it unpacked itself (`ChromiumApp.portableFolder`).
+    static func watchedFolder(of game: GameRecord, info: ExecutableInfo, bottle: URL) -> String? {
+        guard game.bottleStore != nil else { return nil }
+        return info.electronPortable ? ChromiumApp.portableFolder()
+            : WindowsPath.windowsPath(of: URL(filePath: game.folder, directoryHint: .isDirectory), inBottle: bottle)
+    }
+
+    /// What every launch puts into the bottle besides the game's settings: the backend's own files
+    /// (`BackendTree`) and the PowerShell stand-in (`PowerShell`).
+    static func prepareBottle(_ bottle: URL, for backend: GraphicsBackend, wine: Wine) throws {
+        try BackendTree.prepareBottle(bottle, for: backend, wine: wine)
+        try PowerShell.install(in: bottle)
+    }
 }

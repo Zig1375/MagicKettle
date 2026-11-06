@@ -96,7 +96,7 @@ struct GamePage: View {
                 }
                 if StoreClient.retina(GameSettings.retina(game.retina,
                                                           dpiAware: library.infos[game.id]?.dpiAware ?? false),
-                                      for: game.store) {
+                                      for: game.bottleStore) {
                     RetinaClicksTip(game: game, library: library)
                         .padding(.top, 4)
                 }
@@ -278,7 +278,7 @@ private struct DetailsColumn: View {
                 Text(size.map { $0.formatted(.byteCount(style: .file)) } ?? "…")
             }
             DetailRow(label: "System") {
-                if let store = game.store {
+                if let store = game.bottleStore {
                     // The store's bottle, shared by all its games: its version isn't one game's to change.
                     Text("\(WindowsVersion.default.displayName), like \(store.name)")
                 } else {
@@ -294,7 +294,7 @@ private struct DetailsColumn: View {
             }
             DetailRow(label: "Graphics") { Text(graphics) }
             DetailRow(label: "Retina") {
-                if let store = game.store, !StoreClient.retina(true, for: store) {
+                if let store = game.bottleStore, !StoreClient.retina(true, for: store) {
                     // The store's client keeps the shared bottle out of Retina mode (`StoreClient.retina`): "On"
                     // here would be a choice that does nothing.
                     Text("\(AdvancedPage.settingTitle(.off)), like \(store.name)")

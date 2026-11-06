@@ -186,6 +186,41 @@ import Testing
         #expect(GameIdentifier.storeGame(at: "/Games/Heroes/h3.exe", in: games) == nil)
     }
 
+    /// r2modman opened twice from Downloads is one card: the second time used to make another, which searched for
+    /// its settings again. Another exe there is still a program of its own.
+    @Test func aProgramInDownloadsIsFoundAgainByItsPath() throws {
+        let exe = try makeExe("Downloads/r2modman.exe")
+        let first = try identifier.identify(executable: exe)
+        #expect(first.method == .new)
+        let again = try identifier.identify(executable: exe)
+        #expect(again.method == .path)
+        #expect(again.record.id == first.record.id)
+        #expect(try identifier.identify(executable: makeExe("Downloads/other.exe")).method == .new)
+        #expect(try library().games.count == 2)
+    }
+
+    /// r2modman opened from Downloads: deleting it from disk takes its exe, never the player's Downloads. A game in
+    /// a folder of its own still goes with its folder.
+    @Test func deletingFromDiskNeverTakesASharedFolder() throws {
+        let manager = try identifier.identify(executable: makeExe("Downloads/r2modman.exe")).record
+        #expect(GameRemover.trashTarget(for: manager, identifier: identifier).lastPathComponent == "r2modman.exe")
+        let heroes = try identifier.identify(executable: makeExe("Games/Heroes3/Heroes3.exe")).record
+        #expect(GameRemover.trashTarget(for: heroes, identifier: identifier).lastPathComponent == "Heroes3")
+    }
+
+    /// r2modman in Downloads, run with Steam: opening it again finds it, and another exe in Downloads is a game of
+    /// its own.
+    @Test func aProgramRunWithAStoreIsFoundByItsExeOnly() {
+        var manager = GameRecord(id: .make(), name: "r2modman", executable: "/Users/me/Downloads/r2modman.exe",
+                                 folder: "/Users/me/Downloads", hasMarker: false,
+                                 addedAt: Date(timeIntervalSince1970: 0))
+        manager.runsWith = .steam
+        #expect(manager.bottleID == Store.steam.bottleID)
+        #expect(manager.bottleStore == .steam)
+        #expect(GameIdentifier.storeGame(at: "/Users/me/Downloads/R2MODMAN.exe", in: [manager]) == manager)
+        #expect(GameIdentifier.storeGame(at: "/Users/me/Downloads/other.exe", in: [manager]) == nil)
+    }
+
     @Test func theDeepestStoreFolderWins() {
         let outer = storeRecord(.epic, id: "a", folder: "/B/Epic/Game", exe: "/B/Epic/Game/game.exe")
         let inner = storeRecord(.epic, id: "b", folder: "/B/Epic/Game/DLC", exe: "/B/Epic/Game/DLC/dlc.exe")

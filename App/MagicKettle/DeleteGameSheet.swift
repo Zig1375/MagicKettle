@@ -25,12 +25,23 @@ struct DeleteGameSheet: View {
                            Double-click the exe to bring it back.
                            """)
                     .tag(Choice.appOnly)
-                option(title: "From disk",
-                       text: """
-                           The game folder\(sizeText) goes to the Trash. Until the Trash is emptied, \
-                           the game can be restored.
-                           """)
-                    .tag(Choice.fromDisk)
+                Group {
+                    if let program = onlyProgram {
+                        // The game sits in Downloads or another shared folder: that folder stays.
+                        option(title: "From disk",
+                               text: """
+                                   Only \(program)\(sizeText) goes to the Trash; \(folder) stays. Until the Trash \
+                                   is emptied, it can be restored.
+                                   """)
+                    } else {
+                        option(title: "From disk",
+                               text: """
+                                   The game folder\(sizeText) goes to the Trash. Until the Trash is emptied, \
+                                   the game can be restored.
+                                   """)
+                    }
+                }
+                .tag(Choice.fromDisk)
             }
             .pickerStyle(.radioGroup)
             .labelsHidden()
@@ -57,6 +68,12 @@ struct DeleteGameSheet: View {
     }
 
     private var folder: String { (game.folder as NSString).abbreviatingWithTildeInPath }
+
+    /// The program's file name when only it goes to the Trash (`GameRemover.trashTarget`).
+    private var onlyProgram: String? {
+        let target = GameRemover.trashTarget(for: game, identifier: GameIdentifier(paths: library.paths))
+        return target.path == URL(filePath: game.executable).path ? target.lastPathComponent : nil
+    }
 
     private var sizeText: String {
         (folderSize ?? measured).map { " (\($0.formatted(.byteCount(style: .file))))" } ?? ""

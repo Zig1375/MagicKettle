@@ -43,6 +43,7 @@ struct SteamStore: StoreModule {
     }
 
     func playArguments(storeID: String) -> [String] { ["-silent", "-applaunch", storeID] }
+    let backgroundArguments = ["-silent"]
 
     /// Steam has a link for removing a game; other clients open on their library, where the game is removed.
     func uninstallArguments(storeID: String) -> [String] { ["steam://uninstall/\(storeID)"] }

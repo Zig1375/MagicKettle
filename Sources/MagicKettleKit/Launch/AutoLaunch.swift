@@ -112,8 +112,7 @@ public struct AutoLaunch: Sendable {
 
     private func attempts(_ game: GameRecord, runtime: RuntimeManifest.Runtime, backend override: GraphicsBackend?,
                           context: Context) async throws -> Result {
-        let control = context.control
-        let events = context.events
+        let (control, events) = (context.control, context.events)
         var game = game
         let exe = URL(filePath: game.executable)
         try noticeUpdate(of: &game, exe: exe)
@@ -131,8 +130,9 @@ public struct AutoLaunch: Sendable {
             ? GameIdentifier.recommended(for: game) : nil
         let standard = (windows: game.windowsVersion, chromium: game.chromium)
         if let fromFile { Self.apply(fromFile, to: &game) }
-        var order = Self.order(for: game, override: override, info: info, recommended: fromFile, known: known,
-                               module: module, d3dmetal: d3dmetal)
+        var order = withoutSearch(Self.order(for: game, override: override, info: info, recommended: fromFile,
+                                             known: known, module: module, d3dmetal: d3dmetal),
+                                  for: game, info: info, override: override)
         // Graphics picked in Advanced works like `--backend`: that one only, no retries. So does a module's
         // `require`.
         if override ?? game.chosenBackend ?? module.requireBackend != nil { control.stopRetrying() }
@@ -211,7 +211,7 @@ public struct AutoLaunch: Sendable {
 
         // A backend that worked before only fails by closing; one never seen working also by showing nothing.
         let timeout = backend == game.backend ? nil
-            : game.store != nil ? timing.storeWindowTimeout : timing.firstWindowTimeout
+            : game.bottleStore != nil ? timing.storeWindowTimeout : timing.firstWindowTimeout
         var seen: GameScaling.LearnedWindow?
         var judge = AttemptJudge(windowTimeout: timeout, windowHolds: timing.windowHolds)
         judge.checksPicture = game.chromium != nil || context.chromiumProgram
@@ -312,7 +312,7 @@ public struct AutoLaunch: Sendable {
     /// not suit it (a remembered backend waits for a window without a limit), so they are looked for again. A store
     /// game isn't: its client updates it often, and each search restarts the client.
     private func noticeUpdate(of game: inout GameRecord, exe: URL) throws {
-        guard game.store == nil, let stamp = GameRecord.ExeStamp(of: exe), stamp != game.exeStamp else { return }
+        guard game.bottleStore == nil, let stamp = GameRecord.ExeStamp(of: exe), stamp != game.exeStamp else { return }
         let updated = game.exeStamp != nil
         if updated { game.forgetLaunchSettings() }
         game.exeStamp = stamp

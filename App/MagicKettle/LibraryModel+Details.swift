@@ -17,13 +17,19 @@ extension LibraryModel {
     }
 
     /// Size of the game's folder on disk.
+    /// The size of what "Delete from disk" would remove (`GameRemover.trashTarget`): the game's folder, or only
+    /// its program when it sits in Downloads or another shared folder.
     func folderSize(of game: GameRecord) async -> Int64 {
-        let folder = URL(filePath: game.folder, directoryHint: .isDirectory)
+        let folder = GameRemover.trashTarget(for: game, identifier: GameIdentifier(paths: paths))
         return await Task.detached(priority: .utility) { LibraryModel.allocatedSize(of: folder) }.value
     }
 
     nonisolated static func allocatedSize(of folder: URL) -> Int64 {
         let keys: [URLResourceKey] = [.totalFileAllocatedSizeKey, .isRegularFileKey]
+        if (try? folder.resourceValues(forKeys: [.isRegularFileKey]))?.isRegularFile == true {
+            let values = try? folder.resourceValues(forKeys: [.totalFileAllocatedSizeKey])
+            return Int64(values?.totalFileAllocatedSize ?? 0)
+        }
         guard let files = FileManager.default.enumerator(at: folder, includingPropertiesForKeys: keys) else { return 0 }
         var total: Int64 = 0
         for case let file as URL in files {
@@ -35,7 +41,7 @@ extension LibraryModel {
 
     /// "From disk": the game's folder goes to the Trash (recoverable), then Magic Kettle forgets the game.
     func moveToTrash(_ game: GameRecord) {
-        let folder = URL(filePath: game.folder, directoryHint: .isDirectory)
+        let folder = GameRemover.trashTarget(for: game, identifier: GameIdentifier(paths: paths))
         NSWorkspace.shared.recycle([folder]) { _, error in
             Task { @MainActor in
                 if let error {
@@ -56,6 +62,16 @@ extension LibraryModel {
     /// Back to the name Magic Kettle gave the game (`GameRecord.originalName`).
     func restoreName(of game: GameRecord) {
         update(game.id) { $0.restoreName() }
+    }
+
+    /// "Run with Steam": a mod manager like r2modman starts in Steam's Windows, where it sees Steam's games and
+    /// starts them through it; nil runs it on its own again. What was found for it elsewhere is looked for again.
+    func run(_ game: GameRecord, with store: Store?) {
+        guard GameSettings.canRunWithStore(game, paths: paths) else { return }
+        update(game.id) { record in
+            record.runsWith = store
+            record.forgetLaunchSettings()
+        }
     }
 
     func update(_ id: GameID, _ change: (inout GameRecord) -> Void) {

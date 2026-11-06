@@ -20,6 +20,15 @@ import Testing
         #expect(verdict() == .adopt)
     }
 
+    /// r2modman's "Start modded": Muck started by Steam with Doorstop's arguments keeps them, so it isn't
+    /// restarted, even unsettled and in another Wine.
+    @Test func aGameStartedWithArgumentsIsAdopted() {
+        let found = StoreGameStarts.verdict(settled: false, age: 4, running: .dxmt, wanted: .dxvk,
+                                            drawn: (.init(retina: true, dpi: 96), .init(retina: true, dpi: 96)),
+                                            withArguments: true)
+        #expect(found == .adopt)
+    }
+
     @Test func otherWineTreeIsPrepared() {
         #expect(verdict(running: .dxvk, wanted: .dxmt) == .prepare)
     }

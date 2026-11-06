@@ -65,9 +65,25 @@ struct GameCard: View {
             if library.customCovers.contains(game.id) {
                 Button("Remove Cover") { library.removeCover(for: game) }
             }
+            runWithStore
             Divider()
             Button("Delete…", role: .destructive) { library.delete(game) }
                 .disabled(state != nil)
+        }
+    }
+
+    /// A mod manager (r2modman, HedgeModManager) has to run beside the store's games to see and start them: a
+    /// tick per installed store. Only for the player's own programs that can move (`canRunWithStore`).
+    @ViewBuilder private var runWithStore: some View {
+        let stores = Store.allCases.filter { library.installedStores.contains($0) || game.runsWith == $0 }
+        if !stores.isEmpty, GameSettings.canRunWithStore(game, paths: library.paths) {
+            Divider()
+            ForEach(stores) { store in
+                Toggle("Run with \(store.name)", isOn: Binding(get: { game.runsWith == store }, set: { on in
+                    library.run(game, with: on ? store : nil)
+                }))
+                .disabled(state != nil)
+            }
         }
     }
 

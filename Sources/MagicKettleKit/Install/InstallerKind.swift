@@ -32,6 +32,10 @@ public enum InstallerKind: String, Sendable, Equatable, Codable {
         let manifest = info.manifest?.lowercased() ?? ""
         func has(_ marker: String) -> Bool { start.range(of: Data(marker.utf8)) != nil }
 
+        // electron-builder's single-file "portable" build is NSIS too, but only unpacks the program to a
+        // temporary folder and runs it from there: r2modman's download asked where to install it, and then ran
+        // as an installer.
+        if info.electronPortable || ChromiumApp.isElectronPortable(start) { return nil }
         if strings.contains("inno setup") || has("Inno Setup Setup Data") { return .innoSetup }
         if manifest.contains("nullsoft") || strings.contains("nullsoft") || has("NullsoftInst") { return .nsis }
         if strings.contains("installshield") || has("InstallShield") { return .installShield }

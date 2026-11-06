@@ -45,7 +45,18 @@ public enum WineEnvironment {
     /// `winemenubuilder` is always off: it would add Start Menu shortcuts and file associations for every
     /// installer to the Mac (`~/Applications`, Launch Services), which Magic Kettle manages itself. Graphics backends
     /// need no overrides: each runs from its own Wine tree (`BackendTree`).
-    static let dllOverrides = "winemenubuilder.exe=d"
+    ///
+    /// The DLLs mod loaders put next to a game's exe come first, as on Windows: BepInEx's Doorstop is a
+    /// `winhttp.dll` in the game's folder, MelonLoader and others a `version.dll`, ASI loaders a `dinput8.dll`.
+    /// Wine prefers its own copy of these, so mods installed by r2modman for Muck never loaded. Native then
+    /// builtin only changes a folder that has its own copy; everywhere else Wine's still loads.
+    ///
+    /// `powershell.exe` is native first too: Magic Kettle's stand-in (`PowerShell`) answers what Wine's stub doesn't.
+    static let dllOverrides = "winemenubuilder.exe=d;powershell.exe=n,b;"
+        + modLoaderDLLs.map { "\($0)=n,b" }.joined(separator: ";")
+
+    /// What mod loaders name themselves to be loaded by a game that never asked for them.
+    static let modLoaderDLLs = ["winhttp", "version", "dinput8"]
 
     /// The runtime feature that says a Wine build has osync.
     static let fastSyncFeature = "osync"
@@ -54,7 +65,7 @@ public enum WineEnvironment {
     /// it off in Advanced. A store's bottle is shared by its client and all its games, so it stays on there.
     public static func fastSync(for game: GameRecord?, wine: Wine) -> Bool {
         guard wine.supportsFastSync else { return false }
-        guard let game, game.store == nil else { return true }
+        guard let game, game.bottleStore == nil else { return true }
         return game.fastSync != false
     }
 

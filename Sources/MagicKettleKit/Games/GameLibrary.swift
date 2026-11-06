@@ -66,8 +66,17 @@ public struct GameRecord: Codable, Sendable, Equatable, Identifiable {
     /// The game's id in its store: Steam's app id, Epic's `namespace:item:app`.
     public var storeID: String?
 
+    /// A program of the player's that runs beside a store's games rather than in a bottle of its own: a mod
+    /// manager. r2modman has to see Muck in Steam's folder, put its mod loader there and start the game through
+    /// the Steam that runs in that bottle; in a bottle of its own it found no games. It starts like a game of its
+    /// own (no client, its own settings), but shares the store's bottle and Windows. Nil for everything else.
+    public var runsWith: Store?
+
+    /// The store whose bottle this runs in: a store game's, or a program's that runs with one.
+    public var bottleStore: Store? { store ?? runsWith }
+
     /// The bottle the game runs in: its own, or its store's.
-    public var bottleID: GameID { store?.bottleID ?? id }
+    public var bottleID: GameID { bottleStore?.bottleID ?? id }
 
     /// An exe's size and modification time, in whole seconds as Games.json keeps dates.
     public struct ExeStamp: Codable, Sendable, Equatable {

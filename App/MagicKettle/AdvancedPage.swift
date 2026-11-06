@@ -110,7 +110,7 @@ struct AdvancedPage: View {
         // A store's client shares the game's bottle, and one that can't draw in Retina mode takes the game's
         // with it (`StoreClient.retina`).
         let dpiAware = library.infos[game.id]?.dpiAware ?? false
-        let retina = StoreClient.retina(GameSettings.retina(game.retina, dpiAware: dpiAware), for: game.store)
+        let retina = StoreClient.retina(GameSettings.retina(game.retina, dpiAware: dpiAware), for: game.bottleStore)
         switch GameSettings.autoScaling(for: game, retina: retina) {
         case .notSeenYet:
             return "Auto: decided after the first launch, from the size of the game's window"
@@ -163,7 +163,7 @@ struct AdvancedPage: View {
                     .onChange(of: environment) { save(\.environment, environment) }
                     .accessibilityLabel("Environment variables")
             }
-            if game.store == nil {
+            if game.bottleStore == nil {
                 // A store game shares its store's Windows with the client, which must run the same way.
                 SettingRow(title: "Fast sync", detail: "Usually faster; turn it off if the game freezes") {
                     Switch(isOn: Binding(get: { game.fastSync != false }, set: { value in

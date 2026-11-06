@@ -35,9 +35,13 @@ public enum StoreGameStarts {
     ///     window instead of being searched for.
     ///   - age: how long its first process has run.
     ///   - drawn: what the client's bottle draws with, and what the game asks for (`StoreClient.needsRestart`).
+    ///   - withArguments: the game was started with arguments. A mod manager starts it that way: r2modman's "Start
+    ///     modded" gave Muck `--doorstop-enable true --doorstop-target …`, Magic Kettle closed it to start it its own
+    ///     way, and the game came back without them and without its mods. Such a launch is taken over as it is.
     static func verdict(settled: Bool, age: TimeInterval, running: GraphicsBackend?, wanted: GraphicsBackend?,
-                        drawn: (runs: StoreClient.Drawn, wanted: StoreClient.Drawn)) -> Verdict {
-        guard age < preparesWithin else { return .adopt }
+                        drawn: (runs: StoreClient.Drawn, wanted: StoreClient.Drawn),
+                        withArguments: Bool = false) -> Verdict {
+        guard age < preparesWithin, !withArguments else { return .adopt }
         if !settled { return .prepare }
         if let wanted, running != wanted { return .prepare }
         return StoreClient.needsRestart(drawn: drawn.runs, wanted: drawn.wanted) ? .prepare : .adopt
@@ -73,7 +77,8 @@ public enum StoreGameStarts {
                 let (_, dpi) = GameLauncher.drawing(for: game, retina: wantsRetina)
                 let verdict = verdict(settled: settled, age: now.timeIntervalSince(since),
                                       running: BackendTree.backend(of: wine.root), wanted: wanted,
-                                      drawn: (drawn, StoreClient.Drawn(retina: wantsRetina, dpi: dpi)))
+                                      drawn: (drawn, StoreClient.Drawn(retina: wantsRetina, dpi: dpi)),
+                                      withArguments: !first.arguments.isEmpty)
                 let environment = WineEnvironment.make(host: [:], bottle: bottle.path,
                                                        fastSync: WineEnvironment.fastSync(for: nil, wine: wine))
                 let session = GameSession(wine: wine, environment: environment, processID: first.pid,

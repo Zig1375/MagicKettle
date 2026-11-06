@@ -72,6 +72,19 @@ import Testing
         record.executable = paths.bottle(forGame: record.id).appending(path: "drive_c/Program Files/H/h.exe").path
         #expect(!GameSettings.canReset(record, paths: paths))
     }
+
+    /// r2modman from Downloads can run with Steam; one installed into its own Windows would leave its files
+    /// behind, and a Steam game already runs there.
+    @Test func onlyThePlayersOwnProgramsRunWithAStore() {
+        let paths = AppPaths(root: URL(filePath: "/E"), games: URL(filePath: "/G"))
+        var record = game()
+        #expect(GameSettings.canRunWithStore(record, paths: paths))
+        record.store = .steam
+        #expect(!GameSettings.canRunWithStore(record, paths: paths))
+        record.store = nil
+        record.executable = paths.bottle(forGame: record.id).appending(path: "drive_c/Programs/r2/r2.exe").path
+        #expect(!GameSettings.canRunWithStore(record, paths: paths))
+    }
 }
 
 /// What a launch writes into the bottle (`GameLauncher.configure`), on a bottle of two registry files.

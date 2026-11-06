@@ -77,6 +77,37 @@ public enum ChromiumApp {
         return files.contains("icudtl.dat") && hasPak && hasEngine
     }
 
+    /// The way a Chromium program starts before any launch found one for it.
+    ///
+    /// A single-file Electron program (electron-builder's "portable") draws without the GPU from the start. It is
+    /// a tool, not a game: r2modman drew its own title bar as a see-through strip with the GPU in-process, a
+    /// problem no blank-window check sees, and nothing in it needs the speed.
+    public static func firstMode(for info: ExecutableInfo) -> Mode? {
+        info.electronPortable ? .noGPU : info.chromium ? .inProcessGPU : nil
+    }
+
+    /// The way a launch draws: what an earlier one found, except that a single-file Electron program always draws
+    /// without the GPU. r2modman had kept the in-process GPU from before Magic Kettle knew it, and its title bar
+    /// stayed see-through.
+    public static func mode(remembered: Mode?, info: ExecutableInfo) -> Mode? {
+        info.electronPortable ? .noGPU : remembered ?? firstMode(for: info)
+    }
+
+    /// Where a single-file Electron program runs once unpacked, as Windows sees it: the user's temporary folder
+    /// (`%TEMP%\<id>\r2modman.exe`). Its window belongs to that process, not to the exe that was opened.
+    public static func portableFolder(user: String = NSUserName()) -> String {
+        #"C:\users\"# + user + #"\AppData\Local\Temp"#
+    }
+
+    /// Whether `data`, the start of an NSIS exe, is electron-builder's single-file build of an Electron program:
+    /// it unpacks the program to a temporary folder and runs it, setting `PORTABLE_EXECUTABLE_DIR` for it. Its
+    /// script keeps that name in UTF-16, within its first megabyte (360 KB into r2modman 3.2.21).
+    static func isElectronPortable(_ data: Data) -> Bool {
+        data.range(of: portableMarker) != nil
+    }
+
+    private static let portableMarker = Data("PORTABLE_EXECUTABLE_DIR".utf16.flatMap { [UInt8($0 & 0xFF), 0] })
+
     /// A Chromium GPU process running in the bottle: the program is Chromium even if its files didn't say so (a
     /// launcher that unpacks it at start, say).
     public static func runsGPUProcess(in bottle: URL) -> Bool {

@@ -101,6 +101,21 @@ public struct StoreClient: Sendable {
         return true
     }
 
+    /// Starts the client in the background, the way Magic Kettle starts it, unless it already runs. For a program
+    /// that runs with the store (`GameRecord.runsWith`): r2modman's "Start modded" ran `Steam.exe -applaunch`
+    /// itself, and a Steam started that way checked its files, put its own web helper back over
+    /// `ChromiumHelper`'s and stayed with no window, so Muck never started. Already running, Steam takes the
+    /// program's request.
+    /// Returns whether it started it: the bottle's registry can't be written from then on (`WineRegistry`).
+    @discardableResult
+    public func startInBackground(_ store: Store, wine: Wine) async throws -> Bool {
+        guard !isRunning(store), let client = store.client(in: bottle(for: store)) else { return false }
+        _ = try await prepare(store, runtime: nil, wine: wine)
+        try start(wine, client, store.clientArguments(in: bottle(for: store)) + store.module.backgroundArguments,
+                  store: store)
+        return true
+    }
+
     /// The command line that starts a game through the client.
     public func playCommand(_ store: Store, storeID: String) throws -> (url: URL, arguments: [String]) {
         guard let client = store.client(in: bottle(for: store)) else { throw StoreError.notInstalled(store.name) }

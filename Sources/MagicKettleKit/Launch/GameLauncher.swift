@@ -65,12 +65,16 @@ public struct GameLauncher: Sendable {
     }
 
     /// A store game's client, made ready for it, and the command that starts the game through the client.
-    /// Returns whether the bottle was idle; always for a game without a store.
+    /// Returns whether the bottle was idle; always for a game without a store. A program that runs with a store
+    /// (`GameRecord.runsWith`) gets the bottle ready the same way, since it shares the client's Wine, but starts
+    /// itself.
     private func prepareStore(for game: GameRecord, wine: Wine, retina: Bool, dpi: Int) async throws
         -> (idle: Bool, client: (url: URL, arguments: [String])?) {
-        guard let store = game.store else { return (true, nil) }
+        guard let store = game.bottleStore else { return (true, nil) }
         let stores = StoreClient(paths: paths, host: host)
         let idle = try await stores.prepareForGame(store, wine: wine, retina: retina, dpi: dpi)
+        // A program that runs with the store starts it first, so the store takes the program's requests.
+        guard game.store != nil else { return (try await !stores.startInBackground(store, wine: wine) && idle, nil) }
         guard store.launchesGames, let id = game.storeID else { return (idle, nil) }
         return (idle, try stores.playCommand(store, storeID: id))
     }
@@ -96,18 +100,19 @@ public struct GameLauncher: Sendable {
         progress(.windows(game.windowsVersion, firstTime: !bottles.hasTemplate(for: runtime)))
         // A store game shares its store's bottle, and its Windows version.
         let bottle = try await bottles.ensureBottle(for: game.bottleID, runtime: runtime,
-                                                    windows: game.store == nil ? game.windowsVersion : .default)
+                                                    windows: game.bottleStore == nil ? game.windowsVersion : .default)
         let files = try await gameFiles(for: game, info: info, in: .init(bottle, runtime, runtimeFolder),
                                         fetch: fetchGameFiles, progress: progress)
         progress(.graphics(backend, directX: info.directX.max()))
         let wine = try BackendTree.wine(for: backend, runtimeFolder: runtimeFolder, d3dmetal: d3dmetal?.folder)
         // Retina only for games that say they handle high DPI; others would draw a tiny interface. A store's
         // client shares the bottle, and one that can't draw in Retina mode takes the game's with it.
-        let retina = StoreClient.retina(GameSettings.retina(game.retina, dpiAware: info.dpiAware), for: game.store)
+        let retina = StoreClient.retina(GameSettings.retina(game.retina, dpiAware: info.dpiAware),
+                                        for: game.bottleStore)
         let drawing = Self.drawing(for: game, retina: retina, predicted: files.window)
         let (idle, client) = try await prepareStore(for: game, wine: wine, retina: retina, dpi: drawing.dpi)
         let fastSync = WineEnvironment.fastSync(for: game, wine: wine)
-        if game.store == nil { await Self.stopWine(in: bottle, unless: fastSync) }
+        if game.bottleStore == nil { await Self.stopWine(in: bottle, unless: fastSync) }
         // With the store's client already running in the right Wine, its registry can't be written: the game
         // keeps the settings the bottle had when the client started.
         let scale = idle ? try Self.configure(bottle: bottle, for: game, retina: retina,
@@ -116,23 +121,20 @@ public struct GameLauncher: Sendable {
         // setting, and the log and the measuring of its window have to follow it rather than the game's wish.
         let drawnRetina = idle ? retina : StoreClient.drawn(bottle).retina
         try files.link(into: bottle, registry: idle)
-        try BackendTree.prepareBottle(bottle, for: backend, wine: wine)
+        try Self.prepareBottle(bottle, for: backend, wine: wine)
         try await insertDisc(of: game, into: bottle)
         let environment = WineEnvironment.make(host: host, bottle: bottle.path,
-                                               extra: (game.store?.environment ?? [:])
+                                               extra: (game.bottleStore?.environment ?? [:])
                                                    .merging(GameSettings.environment(of: game)) { _, user in user },
                                                verboseLog: verboseLog || game.verboseLog == true,
                                                fastSync: fastSync, locale: files.locale, backend: backend)
         progress(.starting)
-        let folder = game.store.map { _ in
-            WindowsPath.windowsPath(of: URL(filePath: game.folder, directoryHint: .isDirectory), inBottle: bottle)
-        }
+        let folder = Self.watchedFolder(of: game, info: info, bottle: bottle)
         let storeClient = game.store == nil ? Store.clientProgram(exe, in: bottle) : nil
         if let storeClient {
             try await StoreClient(paths: paths, host: host).prepareClientProgram(storeClient, in: bottle, wine: wine)
         }
-        let chromium = game.store != nil ? nil
-            : game.chromium ?? (info.chromium ? .inProcessGPU : nil)
+        let chromium = game.store != nil ? nil : ChromiumApp.mode(remembered: game.chromium, info: info)
         return Prepared(game: game, info: info, backend: backend, bottle: bottle, wine: wine,
                         environment: environment, log: newLogFile(for: game.id), scale: scale,
                         retina: drawnRetina, client: client, gameFolder: folder, chromium: chromium,
@@ -229,6 +231,8 @@ public struct GameLauncher: Sendable {
         extra += prepared.notes
         if let store = prepared.game.store {
             extra.append("[Magic Kettle] Store \(store.name) \(prepared.game.storeID ?? "")")
+        } else if let store = prepared.game.runsWith {
+            extra.append("[Magic Kettle] Runs with \(store.name)")
         }
         log.write(Data(((header + extra).joined(separator: "\n") + "\n").utf8))
 

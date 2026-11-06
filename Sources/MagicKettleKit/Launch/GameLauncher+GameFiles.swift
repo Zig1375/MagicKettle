@@ -50,7 +50,7 @@ extension GameLauncher {
     /// Everything still to install is counted first, so the sheet can say "1 of 2" from the start.
     func gameFiles(for game: GameRecord, info: ExecutableInfo, in target: Target, fetch: Bool,
                    progress: @Sendable (Step) -> Void) async throws -> GameFiles {
-        guard game.store == nil else { return GameFiles() }
+        guard game.bottleStore == nil else { return GameFiles() }
         let exe = URL(filePath: game.executable)
         let folder = exe.deletingLastPathComponent()
         let rpgMaker = RPGMakerGame.read(folder: folder)
