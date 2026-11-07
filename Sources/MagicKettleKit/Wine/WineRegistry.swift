@@ -44,6 +44,14 @@ public enum WineRegistry {
         return setEntry(in: text, key: key, name: name, entry: entry, now: now)
     }
 
+    /// Returns `text` without the key and its values; its subkeys stay. Unchanged when there is no such key.
+    public static func removeKey(in text: String, key: String) -> String {
+        var lines = text.components(separatedBy: "\n")
+        guard let body = sectionRange(in: lines, key: key) else { return text }
+        lines.removeSubrange((body.lowerBound - 1)..<body.upperBound)
+        return lines.joined(separator: "\n")
+    }
+
     /// Whether `text` already has exactly this line in the key, so a file isn't rewritten for nothing.
     static func contains(_ text: String, key: String, entry: String) -> Bool {
         let lines = text.components(separatedBy: "\n")

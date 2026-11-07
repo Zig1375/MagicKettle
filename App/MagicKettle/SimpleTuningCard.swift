@@ -9,6 +9,9 @@ struct SimpleTuningCard: View {
     let library: LibraryModel
     let details: () -> Void
 
+    /// A mod manager rather than a game: the texts say "program".
+    private var program: Bool { library.game(launch.id)?.isProgram == true }
+
     var body: some View {
         VStack(spacing: 22) {
             TuningIllustration(tuning: tuning, game: library.game(launch.id), library: library)
@@ -18,7 +21,10 @@ struct SimpleTuningCard: View {
                     .font(.system(size: 22, weight: .bold))
                     .multilineTextAlignment(.center)
                     .accessibilityAddTraits(.isHeader)
-                Text("""
+                Text(program ? """
+                    This program was made for Windows. Magic Kettle tries it with different settings and checks that \
+                    it opens and runs smoothly. The one that works is kept, so next time the program starts right away.
+                    """ : """
                     This game was made for Windows. Magic Kettle tries it with different settings and checks that it \
                     opens and runs smoothly. The one that works is kept, so next time the game starts right away.
                     """)
@@ -29,19 +35,20 @@ struct SimpleTuningCard: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
             HStack(alignment: .top, spacing: 12) {
-                Point(symbol: "magnifyingglass", title: "Looking at the game", detail: "What it needs to run")
+                Point(symbol: "magnifyingglass", title: program ? "Looking at the program" : "Looking at the game",
+                      detail: "What it needs to run")
                 Point(symbol: "slider.horizontal.3", title: "Trying settings",
                       detail: "Its window stays hidden meanwhile")
                 Point(symbol: "checkmark.seal", title: "Keeping the best", detail: "Only needed once")
             }
             // All three as tall as the tallest.
             .fixedSize(horizontal: false, vertical: true)
-            ScreenAccessWarning()
+            ScreenAccessWarning(program: program)
             VStack(spacing: 8) {
                 // Installing what the game needs takes as long as it takes; the minute starts after it.
                 if let component = launch.component {
                     ComponentBar(component: component, height: 8)
-                    ComponentStatus(component: component).modifier(TuningHint())
+                    ComponentStatus(component: component, program: program).modifier(TuningHint())
                 } else {
                     TimeBar(startedAt: tuning.startedAt)
                     Text("Usually under a minute").modifier(TuningHint())
@@ -260,5 +267,16 @@ private struct ScanBeam: View {
             }
         }
         .allowsHitTesting(false)
+    }
+}
+
+/// The small grey text under a step or a bar on the first-launch screens.
+struct TuningHint: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .font(.system(size: 12))
+            .lineSpacing(2)
+            .foregroundStyle(Color.secondaryText)
+            .fixedSize(horizontal: false, vertical: true)
     }
 }

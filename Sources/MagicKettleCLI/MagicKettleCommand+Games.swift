@@ -48,7 +48,7 @@ extension MagicKettleCommand {
                 return "\(game.engine.rawValue), \(rtps), \(screen)"
             }
             let known = (try? manifest())?.redists ?? []
-            let redists = RedistNeeds.read(executable: URL(filePath: path), info: info)
+            let redists = RedistNeeds.read(executable: URL(filePath: path), info: info, helpers: true)
                 .map { RedistNeeds.needed($0, from: known).map(\.id) } ?? []
             return success([
                 "Format: \(info.format.rawValue)",

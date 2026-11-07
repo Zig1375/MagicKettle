@@ -76,6 +76,30 @@ private let probes = URL(filePath: #filePath).deletingLastPathComponent().deleti
         #expect(RedistNeeds.read(executable: exe, info: info)?.missing["x86"]?.contains("d3d9.dll") == false)
     }
 
+    /// Vortex is Electron; its FOMOD installer, six folders down, is a 64-bit .NET 9 desktop program. In Steam's
+    /// Windows it had no runtime and Vortex stopped with "Vortex requires .NET Desktop Runtime 9".
+    @Test func aDotNetHelperDeepInTheProgramsOwnFolderGetsItsRuntime() throws {
+        let folder = FileManager.default.temporaryDirectory.appending(path: "redist-\(UUID().uuidString)")
+        let dist = folder.appending(path: "resources/app.asar.unpacked/node_modules/@nexusmods/fomod/dist")
+        try FileManager.default.createDirectory(at: dist, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: folder) }
+        let exe = folder.appending(path: "Vortex.exe")
+        try Data().write(to: exe)
+        try FileManager.default.copyItem(at: probes.appending(path: "d3d9-x64.exe"),
+                                         to: dist.appending(path: "ModInstallerIPC.exe"))
+        try Data("""
+            {"runtimeOptions": {"frameworks": [{"name": "Microsoft.NETCore.App", "version": "9.0.0"},
+             {"name": "Microsoft.WindowsDesktop.App", "version": "9.0.0"}]}}
+            """.utf8).write(to: dist.appending(path: "ModInstallerIPC.runtimeconfig.json"))
+        let info = ExecutableInfo(format: .pe64, imports: [], productName: "Vortex", icon: nil, dpiAware: false)
+        let evidence = try #require(RedistNeeds.read(executable: exe, info: info, helpers: true))
+        #expect(evidence.helperFrameworks["x64"] == ["Microsoft.NETCore.App/9", "Microsoft.WindowsDesktop.App/9"])
+        let dotnet9 = redist("dotnet9-x64", kind: "dotnet", provides: ["Microsoft.WindowsDesktop.App/9"])
+        #expect(RedistNeeds.needed(evidence, from: [dotnet8, dotnet9]).map(\.id) == ["dotnet9-x64"])
+        // A shared folder such as Downloads isn't searched: other programs there aren't this one's.
+        #expect(RedistNeeds.read(executable: exe, info: info)?.helperFrameworks.isEmpty == true)
+    }
+
     @Test func aDotNetProgramGetsTheRuntimeOfItsMajorVersion() {
         let evidence = RedistNeeds.Evidence(architecture: "x64", frameworks: ["Microsoft.NETCore.App/8"])
         #expect(RedistNeeds.needed(evidence, from: [vc14, dotnet8]).map(\.id) == ["dotnet8-x64"])

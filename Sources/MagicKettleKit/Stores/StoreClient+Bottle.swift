@@ -20,9 +20,14 @@ extension StoreClient {
     /// What every game gets from `GameLauncher.configure`, written while the client is down: the client stays up
     /// while its games run, so a store game's own launch finds the bottle busy and can't write it. Without it
     /// Banished, started from Steam, switched the Mac's display to 960×600 and the mouse missed its buttons.
-    static func setUpForGames(_ bottle: URL) throws {
+    /// - Parameter programs: the exe names of the programs that run with this store (`GameRecord.runsWith`), which
+    ///   keep the real displays (`BottleManager.keepRealDisplay`).
+    static func setUpForGames(_ bottle: URL, programs: [String] = []) throws {
         try BottleManager.disableCrashDialog(bottle: bottle)
         try BottleManager.enableScaling(bottle: bottle)
+        try BottleManager.keepRealDisplay(bottle: bottle, programs: programs)
+        try BottleManager.hideRoot(bottle: bottle)
+        try BottleManager.drawWPFWithoutGPU(bottle: bottle)
         // Every game's default (`GameRecord.commandAsControl`); it also lets ⌘V paste into the client's own
         // sign-in fields.
         try BottleManager.setCommandAsControl(bottle: bottle, true)

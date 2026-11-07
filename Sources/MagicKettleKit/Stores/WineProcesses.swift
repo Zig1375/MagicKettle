@@ -99,12 +99,34 @@ public enum WineProcesses {
 }
 
 extension WindowsPath {
-    /// The path a Mac folder has inside `bottle`: `drive_c/…` is `C:\…`, anything else is on `Z:`, which Wine
-    /// maps to the Mac's `/`.
+    /// The path a Mac folder has inside `bottle`, as Wine names it: on the drive whose folder holds it most closely
+    /// (`drive_c/…` is `C:\…`, the home folder `H:\…`), else on `Z:`, the Mac's `/`. With `H:` added, a program
+    /// in `~/Games` runs as `H:\Games\…`, and taking it for `Z:\Users\…` would lose its window.
     public static func windowsPath(of url: URL, inBottle bottle: URL) -> String {
-        let drive = bottle.appending(path: "drive_c", directoryHint: .isDirectory).resolvingSymlinksInPath()
         let resolved = url.resolvingSymlinksInPath()
-        if let path = windowsPath(of: resolved, under: drive, drive: "C") { return path }
+        let closest = drives(in: bottle)
+            .compactMap { drive, root in windowsPath(of: resolved, under: root, drive: drive).map { (root, $0) } }
+            .max { $0.0.path(percentEncoded: false).count < $1.0.path(percentEncoded: false).count }
+        if let closest { return closest.1 }
         return windowsPath(of: resolved, under: URL(filePath: "/", directoryHint: .isDirectory), drive: "Z") ?? ""
+    }
+
+    /// The bottle's drive letters and the folders they lead to (`dosdevices/c:` → `drive_c`); `C:` is `drive_c`
+    /// even when the bottle's links can't be read.
+    static func drives(in bottle: URL) -> [(Character, URL)] {
+        let fileManager = FileManager.default
+        let devices = bottle.appending(path: "dosdevices", directoryHint: .isDirectory)
+        let names = (try? fileManager.contentsOfDirectory(atPath: devices.path)) ?? []
+        let linked: [(Character, URL)] = names.compactMap { name in
+            guard name.count == 2, name.hasSuffix(":"), let letter = name.first, letter.isLetter,
+                  let target = try? fileManager.destinationOfSymbolicLink(atPath: devices.appending(path: name).path)
+            else { return nil }
+            let root = target.hasPrefix("/") ? URL(filePath: target, directoryHint: .isDirectory)
+                : devices.appending(path: target, directoryHint: .isDirectory)
+            return (Character(letter.uppercased()), root.resolvingSymlinksInPath())
+        }
+        guard !linked.contains(where: { $0.0 == "C" }) else { return linked }
+        let driveC = bottle.appending(path: "drive_c", directoryHint: .isDirectory)
+        return linked + [("C", driveC.resolvingSymlinksInPath())]
     }
 }

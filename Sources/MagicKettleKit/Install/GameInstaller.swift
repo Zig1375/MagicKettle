@@ -71,7 +71,7 @@ public struct GameInstaller: Sendable {
         }
         if let disc { return disc.deletingPathExtension().lastPathComponent }
         // A package is usually named after its game (`Fallout2.msi`); a setup.exe after nothing.
-        let file = installer.deletingPathExtension().lastPathComponent
+        let file = withoutRelease(installer.deletingPathExtension().lastPathComponent)
         if !generic.contains(file.lowercased()), info == nil || !file.lowercased().contains("setup") { return file }
         let folder = installer.deletingLastPathComponent().lastPathComponent
         return folder.isEmpty || folder == "/" ? file : folder
@@ -98,6 +98,8 @@ public struct GameInstaller: Sendable {
         let bottles = BottleManager(paths: paths, host: host)
         progress(.windows(firstTime: !bottles.hasTemplate(for: runtime)))
         let bottle = try await bottles.ensureBottle(for: id, runtime: runtime, windows: plan.windowsVersion)
+        // An installer's "Browse…" box, too, offers the home folder rather than the Mac's root.
+        try BottleManager.hideRoot(bottle: bottle)
         do {
             let target = Target(id: id, bottle: bottle, wine: Wine(runtimeFolder: runtimeFolder),
                                 template: paths.template(forRuntime: runtime.id))
@@ -159,8 +161,8 @@ public struct GameInstaller: Sendable {
         try await Self.runToEnd(wine, arguments, in: plan.installer.deletingLastPathComponent(),
                                 environment: environment, log: log)
         // Installers hand their work to other processes (Inno's setup.tmp, msiexec's server) and exit at once:
-        // done means the bottle has gone quiet.
-        _ = try? await ProcessRunner.run(wine.wineserver.path, ["-w"], environment: environment)
+        // done means the bottle has gone quiet, but for a program the installer started for the player.
+        await Self.waitForInstall(wine, bottle: bottle, environment: environment)
         watch?.cancel()
 
         progress(.findingGame)
@@ -214,6 +216,7 @@ public struct GameInstaller: Sendable {
                                 folder: folder.path(percentEncoded: false), hasMarker: hasMarker,
                                 windowsVersion: plan.windowsVersion, addedAt: now)
         record.retina = SharedSettings.newGameRetina(paths: paths)
+        ModManagers.setUp(&record, exe: exe, productName: (try? ExecutableInfo.read(exe))?.productName, paths: paths)
         if keepDisc, let disc = plan.disc { record.disc = disc.image.path(percentEncoded: false) }
         if !keepDisc { DiscDrive.eject(from: bottle) }
         try GameLibrary.modify(paths.library) { $0[record.id] = record }
@@ -317,5 +320,15 @@ public struct GameInstaller: Sendable {
             }
         }
         handle.write(Data("[Magic Kettle] Installer exit \(status)\n".utf8))
+    }
+}
+
+extension GameInstaller {
+    /// A package's name without the version, architecture and language that follow it: Tauri names Gale's
+    /// `Gale_1.23.3_x64_en-US.msi`, and the program was called that, folder and card alike.
+    static func withoutRelease(_ name: String) -> String {
+        guard let release = name.firstMatch(of: /[ _-]v?\d+(\.\d+){2,}([ _-].*)?$/),
+              release.range.lowerBound > name.startIndex else { return name }
+        return String(name[..<release.range.lowerBound])
     }
 }

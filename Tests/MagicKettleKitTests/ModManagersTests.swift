@@ -17,6 +17,12 @@ import Testing
         #expect(ModManagers.isModManager(productName: nil, exeName: "Thunderstore Mod Manager - Installer.exe"))
         #expect(!ModManagers.isModManager(productName: nil, exeName: "Galeforce-1.0.exe"))
         #expect(ModManagers.isModManager(productName: nil, exeName: "r2modman-Setup-3.2.21.exe"))
+        // Read from each one's own download on 6 November 2026: the installers of Vortex 2.10.1 and the Nexus Mods
+        // app 0.21.1, SA Mod Manager 1.3.7 and ManiaModManager.
+        #expect(ModManagers.isModManager(productName: "Vortex", exeName: "vortex-setup-2.10.1.exe"))
+        #expect(ModManagers.isModManager(productName: "Nexus Mods App", exeName: "NexusMods.App.x64.exe"))
+        #expect(ModManagers.isModManager(productName: "SAModManager", exeName: "SAModManager.exe"))
+        #expect(ModManagers.isModManager(productName: "ManiaModManager", exeName: "ManiaModManager.exe"))
         #expect(!ModManagers.isModManager(productName: "Muck", exeName: "Muck.exe"))
         #expect(!ModManagers.isModManager(productName: "Muck", exeName: "r2modman.exe"))
     }
@@ -63,5 +69,30 @@ import Testing
     @Test func powerShellRunsMagicKettlesFirst() {
         let overrides = WineEnvironment.make(host: [:], bottle: "/b")["WINEDLLOVERRIDES"] ?? ""
         #expect(overrides.split(separator: ";").contains("powershell.exe=n,b"))
+    }
+}
+
+/// A mod manager put down by its installer went into a Windows of its own and found none of Steam's games.
+@Suite struct InstalledModManagerTests {
+    @Test func anInstalledManagerRunsWithTheStore() throws {
+        let temp = try TempFolder()
+        let paths = AppPaths(root: temp.url, games: temp.url.appending(path: "Games"))
+        let drive = paths.bottle(forGame: Store.steam.bottleID).appending(path: "drive_c")
+        let client = try #require(Store.steam.module.clientPaths.first.map { drive.appending(path: $0) })
+        try FileManager.default.createDirectory(at: client.deletingLastPathComponent(),
+                                                withIntermediateDirectories: true)
+        try Data("MZ".utf8).write(to: client)
+        let exe = URL(filePath: "/Users/me/Games/Vortex/Vortex.exe")
+        var vortex = GameRecord(id: .make(), name: "Vortex", executable: exe.path, folder: "/Users/me/Games/Vortex",
+                                hasMarker: true, addedAt: Date())
+        ModManagers.setUp(&vortex, exe: exe, productName: "Vortex", paths: paths)
+        #expect(vortex.runsWith == .steam)
+        #expect(vortex.storeChoices == [.steam, .epic])
+        #expect(vortex.isProgram)
+        var game = GameRecord(id: .make(), name: "Heroes", executable: "/Games/Heroes/h3.exe", folder: "/Games/Heroes",
+                              hasMarker: true, addedAt: Date())
+        ModManagers.setUp(&game, exe: URL(filePath: game.executable), productName: "Heroes", paths: paths)
+        #expect(game.runsWith == nil && game.storeChoices == nil)
+        #expect(!game.isProgram)
     }
 }

@@ -180,7 +180,8 @@ public struct GameLauncher: Sendable {
         try BottleManager.setCommandAsControl(bottle: bottle, command)
         // Full-screen games get an emulated display mode, small windowed ones a system DPI that enlarges them
         // (`GameScaling`), and fixed-size windows can be stretched.
-        try BottleManager.enableScaling(bottle: bottle)
+        try BottleManager.setUpDisplays(bottle: bottle, for: game)
+        try BottleManager.drawWPFWithoutGPU(bottle: bottle)
         let (scale, dpi) = Self.drawing(for: game, retina: retina, predicted: predicted, screen: screen)
         try BottleManager.setRegistryDWord(bottle: bottle, key: BottleManager.desktopKey, name: "LogPixels",
                                            value: UInt32(dpi))

@@ -47,6 +47,17 @@ public enum ModManagers {
         String(name.lowercased().filter { $0.isLetter || $0.isNumber })
     }
 
+    /// Makes a new record of a mod manager run beside its stores' games from its first launch, without the player
+    /// doing anything: a manager put down by its installer (Vortex, Gale, the Nexus Mods app) went into a Windows
+    /// of its own and found none of them. Any other program is left as it is.
+    public static func setUp(_ record: inout GameRecord, exe: URL, productName: String?, paths: AppPaths) {
+        let supported = stores(productName: productName, exeName: exe.lastPathComponent)
+        guard !supported.isEmpty else { return }
+        let client = StoreClient(paths: paths)
+        record.runsWith = store(installed: Set(Store.allCases.filter(client.isInstalled)))
+        record.storeChoices = GameRecord.storeChoices(supported: supported)
+    }
+
     /// The store a new mod manager runs with at first: the first installed one, in the app's order (Steam first,
     /// where most modded games are). Nil when no store is installed: it then runs on its own. With several stores,
     /// each launch asks which one (`GameRecord.storeChoices`), and this is only the first answer offered.

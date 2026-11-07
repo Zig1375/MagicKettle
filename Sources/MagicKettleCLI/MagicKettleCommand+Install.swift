@@ -91,7 +91,7 @@ extension MagicKettleCommand {
                         progress("Couldn't change the disc: \(error)")
                     }
                 }
-            case .findingGame: progress("Looking for the game's program…")
+            case .findingGame: progress("Looking for the installed program…")
             }
         }
     }

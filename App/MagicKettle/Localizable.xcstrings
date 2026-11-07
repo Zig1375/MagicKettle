@@ -9240,54 +9240,54 @@
         }
       }
     },
-    "Magic Kettle doesn't show the game's uninstaller (%@)": {
+    "Magic Kettle doesn't show the uninstaller (%@)": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Magic Kettle zeigt das Deinstallationsprogramm des Spiels nicht an (%@)"
+            "value": "Das Deinstallationsprogramm (%@) zeigt Magic Kettle nicht an"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Magic Kettle no muestra el desinstalador del juego (%@)"
+            "value": "Magic Kettle no muestra el desinstalador (%@)"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Magic Kettle n’affiche pas le programme de désinstallation du jeu (%@)"
+            "value": "Magic Kettle n’affiche pas le programme de désinstallation (%@)"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Magic Kettle non mostra il programma di disinstallazione del gioco (%@)"
+            "value": "Magic Kettle non mostra il programma di disinstallazione (%@)"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Magic Kettleはゲームのアンインストーラ（%@）を表示しません"
+            "value": "アンインストーラ（%@）は Magic Kettle に表示されません"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Magic Kettle은 게임의 제거 프로그램(%@)을 표시하지 않습니다"
+            "value": "Magic Kettle은 제거 프로그램(%@)을 표시하지 않습니다"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Удаление игры (%@) Magic Kettle не показывает"
+            "value": "Программу удаления (%@) Magic Kettle не показывает"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Magic Kettle 不显示游戏的卸载程序（%@）"
+            "value": "Magic Kettle 不显示卸载程序（%@）"
           }
         }
       }
@@ -9344,54 +9344,54 @@
         }
       }
     },
-    "Game folder": {
+    "Install folder": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Spielordner"
+            "value": "Installationsordner"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carpeta del juego"
+            "value": "Carpeta de instalación"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dossier du jeu"
+            "value": "Dossier d’installation"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cartella del gioco"
+            "value": "Cartella di installazione"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ゲームフォルダ"
+            "value": "インストール先フォルダ"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "게임 폴더"
+            "value": "설치 폴더"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Папка игры"
+            "value": "Папка установки"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "游戏文件夹"
+            "value": "安装文件夹"
           }
         }
       }
@@ -9656,158 +9656,158 @@
         }
       }
     },
-    "Looking for the game's program…": {
+    "Looking for the installed program…": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Programm des Spiels wird gesucht …"
+            "value": "Installiertes Programm wird gesucht …"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Buscando el programa del juego…"
+            "value": "Buscando el programa instalado…"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Recherche du programme du jeu…"
+            "value": "Recherche du programme installé…"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ricerca del programma del gioco…"
+            "value": "Ricerca del programma installato…"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ゲームのプログラムを探しています…"
+            "value": "インストールされたプログラムを探しています…"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "게임 프로그램을 찾는 중…"
+            "value": "설치된 프로그램을 찾는 중…"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ищем программу игры…"
+            "value": "Ищем установленную программу…"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "正在查找游戏程序…"
+            "value": "正在查找已安装的程序…"
           }
         }
       }
     },
-    "Next, the game's installer opens, as in Windows. If it asks where to install, enter %@: that's this folder.": {
+    "Next, the installer opens, as in Windows. If it asks where to install, enter %@: that's this folder.": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Als Nächstes öffnet sich das Installationsprogramm des Spiels, wie unter Windows. Wenn es fragt, wohin installiert werden soll, gib %@ ein: Das ist dieser Ordner."
+            "value": "Als Nächstes öffnet sich das Installationsprogramm wie unter Windows. Wenn es fragt, wohin installiert werden soll, gib %@ ein: Das ist dieser Ordner."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "A continuación se abre el instalador del juego, como en Windows. Si pregunta dónde instalarlo, escribe %@: es esta carpeta."
+            "value": "A continuación se abre el instalador, como en Windows. Si pregunta dónde instalar, escribe %@: es esta carpeta."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ensuite, l’installeur du jeu s’ouvre, comme dans Windows. S’il demande où installer, saisissez %@ : c’est ce dossier."
+            "value": "Ensuite, le programme d’installation s’ouvre, comme sous Windows. S’il demande où installer, saisissez %@ : c’est ce dossier."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ora si apre il programma di installazione del gioco, come in Windows. Se chiede dove installare, inserisci %@: è questa cartella."
+            "value": "Poi si apre il programma di installazione, come in Windows. Se chiede dove installare, inserisci %@: è questa cartella."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "このあと、Windowsと同じようにゲームのインストーラが開きます。インストール先を聞かれたら、%@と入力してください。それがこのフォルダです。"
+            "value": "次に、Windows と同じようにインストーラが開きます。インストール先を聞かれたら %@ と入力してください。これがこのフォルダです。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "이제 Windows에서처럼 게임 설치 프로그램이 열립니다. 설치 위치를 물으면 %@을(를) 입력하십시오. 바로 이 폴더입니다."
+            "value": "이어서 Windows에서처럼 설치 프로그램이 열립니다. 설치 위치를 물으면 %@을(를) 입력하세요. 바로 이 폴더입니다."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Дальше откроется окно установщика игры, как в Windows. Если он спросит, куда ставить, укажите %@ — это папка выше."
+            "value": "Дальше откроется окно установщика, как в Windows. Если он спросит, куда ставить, укажите %@ — это папка выше."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "接下来会像在 Windows 中一样打开游戏安装器。如果它询问安装位置，请输入 %@：那就是这个文件夹。"
+            "value": "接下来会像在 Windows 中一样打开安装程序。如果它询问安装位置，请输入 %@：就是这个文件夹。"
           }
         }
       }
     },
-    "Next, the game's installer opens, as in Windows. The folder is already filled in.": {
+    "Next, the installer opens, as in Windows. The folder is already filled in.": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Als Nächstes öffnet sich das Installationsprogramm des Spiels, wie unter Windows. Der Ordner ist bereits eingetragen."
+            "value": "Als Nächstes öffnet sich das Installationsprogramm wie unter Windows. Der Ordner ist schon eingetragen."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "A continuación se abre el instalador del juego, como en Windows. La carpeta ya está indicada."
+            "value": "A continuación se abre el instalador, como en Windows. La carpeta ya está indicada."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ensuite, l’installeur du jeu s’ouvre, comme dans Windows. Le dossier est déjà renseigné."
+            "value": "Ensuite, le programme d’installation s’ouvre, comme sous Windows. Le dossier est déjà indiqué."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ora si apre il programma di installazione del gioco, come in Windows. La cartella è già indicata."
+            "value": "Poi si apre il programma di installazione, come in Windows. La cartella è già indicata."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "このあと、Windowsと同じようにゲームのインストーラが開きます。フォルダはすでに入力されています。"
+            "value": "次に、Windows と同じようにインストーラが開きます。フォルダはすでに入力されています。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "이제 Windows에서처럼 게임 설치 프로그램이 열립니다. 폴더는 이미 입력되어 있습니다."
+            "value": "이어서 Windows에서처럼 설치 프로그램이 열립니다. 폴더는 이미 입력되어 있습니다."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Дальше откроется окно установщика игры, как в Windows. Путь в нём уже будет указан."
+            "value": "Дальше откроется окно установщика, как в Windows. Путь в нём уже будет указан."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "接下来会像在 Windows 中一样打开游戏安装器。文件夹已填好。"
+            "value": "接下来会像在 Windows 中一样打开安装程序。文件夹已经填好。"
           }
         }
       }
@@ -9864,106 +9864,106 @@
         }
       }
     },
-    "Preparing Windows for the game (once, about 30 s)…": {
+    "Preparing Windows (once, about 30 s)…": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Windows wird für das Spiel vorbereitet (einmalig, etwa 30 s) …"
+            "value": "Windows wird vorbereitet (einmalig, etwa 30 s) …"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Preparando Windows para el juego (una vez, unos 30 s)…"
+            "value": "Preparando Windows (una sola vez, unos 30 s)…"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Préparation de Windows pour le jeu (une seule fois, environ 30 s)…"
+            "value": "Préparation de Windows (une seule fois, environ 30 s)…"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Preparazione di Windows per il gioco (una volta, circa 30 s)…"
+            "value": "Preparazione di Windows (una volta sola, circa 30 s)…"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ゲーム用のWindowsを準備しています（初回のみ、約30秒）…"
+            "value": "Windows を準備しています（初回のみ、約 30 秒）…"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "게임을 위해 Windows 준비 중 (한 번, 약 30초)…"
+            "value": "Windows 준비 중(한 번만, 약 30초)…"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Готовим Windows для игры (один раз, около 30 с)…"
+            "value": "Готовим Windows (один раз, около 30 с)…"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "正在为游戏准备 Windows（仅一次，约 30 秒）…"
+            "value": "正在准备 Windows（仅一次，约 30 秒）…"
           }
         }
       }
     },
-    "Preparing Windows for the game…": {
+    "Preparing Windows…": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Windows wird für das Spiel vorbereitet …"
+            "value": "Windows wird vorbereitet …"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Preparando Windows para el juego…"
+            "value": "Preparando Windows…"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Préparation de Windows pour le jeu…"
+            "value": "Préparation de Windows…"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Preparazione di Windows per il gioco…"
+            "value": "Preparazione di Windows…"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ゲーム用のWindowsを準備しています…"
+            "value": "Windows を準備しています…"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "게임을 위해 Windows 준비 중…"
+            "value": "Windows 준비 중…"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Готовим Windows для игры…"
+            "value": "Готовим Windows…"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "正在为游戏准备 Windows…"
+            "value": "正在准备 Windows…"
           }
         }
       }
@@ -10072,210 +10072,210 @@
         }
       }
     },
-    "The game goes into an ordinary folder on your Mac and stays there if its Windows is reset": {
+    "Everything goes into an ordinary folder on your Mac and stays there if its Windows is reset": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Das Spiel kommt in einen normalen Ordner auf deinem Mac und bleibt dort, auch wenn sein Windows zurückgesetzt wird"
+            "value": "Alles landet in einem normalen Ordner auf deinem Mac und bleibt dort, auch wenn sein Windows zurückgesetzt wird"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "El juego va a una carpeta normal de tu Mac y se queda ahí aunque se restablezca su Windows"
+            "value": "Todo se instala en una carpeta normal de tu Mac y se queda ahí aunque se restablezca su Windows"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Le jeu est placé dans un dossier ordinaire de votre Mac et y reste si son Windows est réinitialisé"
+            "value": "Tout s’installe dans un dossier ordinaire de votre Mac et y reste même si son Windows est réinitialisé"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Il gioco va in una normale cartella del Mac e ci resta anche se il suo Windows viene ripristinato"
+            "value": "Tutto finisce in una normale cartella del Mac e ci resta anche se il suo Windows viene ripristinato"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ゲームはMac上の通常のフォルダに入り、Windows環境をリセットしてもそのまま残ります"
+            "value": "すべて Mac の通常のフォルダに入り、Windows をリセットしても消えません"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "게임은 Mac의 일반 폴더에 설치되며, 게임의 Windows를 재설정해도 그대로 남습니다"
+            "value": "모두 Mac의 일반 폴더에 설치되며 Windows를 재설정해도 그대로 남습니다"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Игра ставится в обычную папку на Mac и не пропадёт при сбросе среды"
+            "value": "Всё ставится в обычную папку на Mac и не пропадёт при сбросе среды"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "游戏会放在 Mac 上的普通文件夹中，即使重置它的 Windows 也会保留"
+            "value": "所有内容都装在 Mac 上的普通文件夹中，即使重置其 Windows 也会保留"
           }
         }
       }
     },
-    "The game starts with %@.": {
+    "Magic Kettle will start %@.": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Das Spiel startet mit %@."
+            "value": "Magic Kettle startet %@."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "El juego se inicia con %@."
+            "value": "Magic Kettle abrirá %@."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Le jeu se lance avec %@."
+            "value": "Magic Kettle lancera %@."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Il gioco si avvia con %@."
+            "value": "Magic Kettle avvierà %@."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ゲームは%@で起動します。"
+            "value": "Magic Kettle は %@ を起動します。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "게임이 %@(으)로 시작됩니다."
+            "value": "Magic Kettle이 %@을(를) 실행합니다."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Игра запускается программой %@."
+            "value": "Запускаться будет %@."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "游戏使用 %@ 启动。"
+            "value": "Magic Kettle 将启动 %@。"
           }
         }
       }
     },
-    "The game's main program": {
+    "The main program": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Das Hauptprogramm des Spiels"
+            "value": "Das Hauptprogramm"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "El programa principal del juego"
+            "value": "El programa principal"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Le programme principal du jeu"
+            "value": "Le programme principal"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Il programma principale del gioco"
+            "value": "Il programma principale"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ゲームのメインプログラム"
+            "value": "メインのプログラム"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "게임의 주 프로그램"
+            "value": "주 프로그램"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Главная программа игры"
+            "value": "Главная программа"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "游戏的主程序"
+            "value": "主程序"
           }
         }
       }
     },
-    "The installer finished without putting a game program in the folder or in its Windows.": {
+    "The installer finished without putting a program in the folder or in its Windows.": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Das Installationsprogramm wurde beendet, ohne ein Spielprogramm im Ordner oder in seinem Windows abzulegen."
+            "value": "Das Installationsprogramm ist fertig, hat aber weder im Ordner noch in seinem Windows ein Programm abgelegt."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "El instalador terminó sin poner ningún programa del juego en la carpeta ni en su Windows."
+            "value": "El instalador terminó sin dejar ningún programa en la carpeta ni en su Windows."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "L’installeur s’est terminé sans placer de programme de jeu dans le dossier ni dans son Windows."
+            "value": "Le programme d’installation s’est terminé sans placer de programme dans le dossier ni dans son Windows."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "L'installazione è terminata senza mettere un programma del gioco nella cartella o nel suo Windows."
+            "value": "Il programma di installazione è terminato senza mettere un programma nella cartella né nel suo Windows."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "インストーラは終了しましたが、フォルダにもWindows環境にもゲームのプログラムが置かれていません。"
+            "value": "インストーラは終了しましたが、フォルダにもその Windows にもプログラムが置かれませんでした。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "설치 프로그램이 폴더나 게임의 Windows에 게임 프로그램을 넣지 않고 종료되었습니다."
+            "value": "설치 프로그램이 끝났지만 폴더에도 해당 Windows에도 프로그램이 없습니다."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Установщик закончил, но программы игры не оказалось ни в папке, ни в её Windows."
+            "value": "Установщик закончил, но программы не оказалось ни в папке, ни в её Windows."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "安装器已完成，但没有在文件夹或游戏的 Windows 中放入游戏程序。"
+            "value": "安装程序已结束，但文件夹和其 Windows 中都没有程序。"
           }
         }
       }
@@ -10332,54 +10332,54 @@
         }
       }
     },
-    "There are several programs in the folder. Which one starts the game?": {
+    "There are several programs in the folder. Which one should Magic Kettle start?": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Im Ordner sind mehrere Programme. Welches startet das Spiel?"
+            "value": "Im Ordner sind mehrere Programme. Welches soll Magic Kettle starten?"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hay varios programas en la carpeta. ¿Cuál inicia el juego?"
+            "value": "Hay varios programas en la carpeta. ¿Cuál debe abrir Magic Kettle?"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Le dossier contient plusieurs programmes. Lequel lance le jeu ?"
+            "value": "Le dossier contient plusieurs programmes. Lequel Magic Kettle doit-il lancer ?"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nella cartella ci sono diversi programmi. Quale avvia il gioco?"
+            "value": "Nella cartella ci sono più programmi. Quale deve avviare Magic Kettle?"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "フォルダに複数のプログラムがあります。ゲームを起動するのはどれですか？"
+            "value": "フォルダに複数のプログラムがあります。Magic Kettle はどれを起動しますか？"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "폴더에 프로그램이 여러 개 있습니다. 어느 것으로 게임을 시작합니까?"
+            "value": "폴더에 프로그램이 여러 개 있습니다. Magic Kettle이 어떤 것을 실행할까요?"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "В папке несколько программ. Какая из них запускает игру?"
+            "value": "В папке несколько программ. Какую из них запускать?"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "文件夹中有多个程序。哪一个用于启动游戏？"
+            "value": "文件夹中有多个程序。Magic Kettle 应该启动哪一个？"
           }
         }
       }
@@ -14810,6 +14810,58 @@
         }
       }
     },
+    "Checking that its window opens and the program keeps running": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Es wird geprüft, ob sich das Fenster öffnet und das Programm weiterläuft"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comprobando que su ventana se abre y que el programa sigue funcionando"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vérification que sa fenêtre s’ouvre et que le programme continue de tourner"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verifica che la finestra si apra e che il programma continui a funzionare"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ウインドウが開き、プログラムが動作し続けるかを確認しています"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "창이 열리고 프로그램이 계속 실행되는지 확인 중"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Смотрим, открылось ли окно и держится ли программа"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在检查窗口能否打开以及程序能否持续运行"
+          }
+        }
+      }
+    },
     "Choose Settings Myself": {
       "localizations": {
         "de": {
@@ -15122,6 +15174,58 @@
         }
       }
     },
+    "Looked at the program's files": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dateien des Programms angesehen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se han examinado los archivos del programa"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fichiers du programme examinés"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "File del programma esaminati"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "プログラムのファイルを調べました"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "프로그램 파일 살펴봄"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Изучили файлы программы"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已查看程序文件"
+          }
+        }
+      }
+    },
     "Prepared %@": {
       "localizations": {
         "de": {
@@ -15278,6 +15382,58 @@
         }
       }
     },
+    "The program's window stays hidden while Magic Kettle checks: it may open and close a few times. Once something works, the program appears by itself.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Das Programmfenster bleibt verborgen, während Magic Kettle prüft: Es kann sich ein paarmal öffnen und schließen. Sobald etwas funktioniert, erscheint das Programm von selbst."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La ventana del programa permanece oculta mientras Magic Kettle comprueba: puede abrirse y cerrarse varias veces. En cuanto algo funcione, el programa aparecerá solo."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La fenêtre du programme reste masquée pendant la vérification de Magic Kettle : elle peut s’ouvrir et se fermer plusieurs fois. Dès qu’un réglage fonctionne, le programme apparaît de lui-même."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La finestra del programma resta nascosta mentre Magic Kettle verifica: potrebbe aprirsi e chiudersi alcune volte. Appena qualcosa funziona, il programma appare da solo."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "確認中はプログラムのウインドウが非表示になり、何度か開いたり閉じたりすることがあります。動作する設定が見つかると、プログラムが自動的に表示されます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Magic Kettle이 확인하는 동안 프로그램 창은 숨겨지며, 몇 번 열렸다 닫힐 수 있습니다. 작동하는 설정을 찾으면 프로그램이 자동으로 나타납니다."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Пока идёт проверка, окно программы спрятано: оно может несколько раз открыться и закрыться. Как только найдётся рабочий вариант, программа появится сама."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Magic Kettle 检查期间，程序窗口会保持隐藏：它可能会打开和关闭几次。一旦找到可用的设置，程序会自动出现。"
+          }
+        }
+      }
+    },
     "This is needed once, usually under a minute": {
       "localizations": {
         "de": {
@@ -15378,6 +15534,58 @@
           "stringUnit": {
             "state": "translated",
             "value": "正在尝试启动游戏"
+          }
+        }
+      }
+    },
+    "Trying to start the program": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Programmstart wird versucht"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Intentando iniciar el programa"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tentative de lancement du programme"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tentativo di avvio del programma"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "プログラムの起動を試しています"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "프로그램 시작 시도 중"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Пробуем запустить программу"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在尝试启动程序"
           }
         }
       }
@@ -16058,6 +16266,58 @@
         }
       }
     },
+    "Looking at the program": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Programm wird untersucht"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Examinando el programa"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Examen du programme"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Analisi del programma"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "プログラムを調べています"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "프로그램 살펴보는 중"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Изучаем программу"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在查看程序"
+          }
+        }
+      }
+    },
     "Next": {
       "localizations": {
         "de": {
@@ -16210,6 +16470,58 @@
           "stringUnit": {
             "state": "translated",
             "value": "此游戏是为 Windows 制作的。Magic Kettle 会用不同的设置尝试运行它，并检查它能否打开并流畅运行。可用的设置会被保留，下次游戏就能直接启动。"
+          }
+        }
+      }
+    },
+    "This program was made for Windows. Magic Kettle tries it with different settings and checks that it opens and runs smoothly. The one that works is kept, so next time the program starts right away.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dieses Programm wurde für Windows gemacht. Magic Kettle probiert es mit verschiedenen Einstellungen aus und prüft, ob es sich öffnet und flüssig läuft. Die funktionierende wird behalten, damit das Programm beim nächsten Mal sofort startet."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Este programa se hizo para Windows. Magic Kettle lo prueba con distintos ajustes y comprueba que se abre y funciona con fluidez. Se guarda la opción que funciona, así que la próxima vez el programa se inicia directamente."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce programme a été conçu pour Windows. Magic Kettle l’essaie avec différents réglages et vérifie qu’il s’ouvre et tourne correctement. Le réglage qui fonctionne est conservé, pour que le programme se lance directement la prochaine fois."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Questo programma è stato creato per Windows. Magic Kettle lo prova con diverse impostazioni e verifica che si apra e funzioni bene. Quella che funziona viene conservata, così la prossima volta il programma si avvia subito."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このプログラムはWindows用に作られています。Magic Kettleはさまざまな設定で試し、プログラムが開いてスムーズに動作するかを確認します。動作した設定が記憶されるので、次回からはすぐに起動します。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 프로그램은 Windows용으로 만들어졌습니다. Magic Kettle은 여러 설정으로 프로그램을 실행해 보고 제대로 열리고 원활하게 실행되는지 확인합니다. 작동하는 설정이 저장되므로 다음부터는 프로그램이 바로 시작됩니다."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Эта программа сделана для Windows. Magic Kettle пробует её с разными настройками и проверяет, что она открывается и работает без сбоев. Подходящие настройки сохранятся, и в следующий раз программа запустится сразу."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此程序是为 Windows 制作的。Magic Kettle 会用不同的设置尝试运行它，并检查它能否打开并流畅运行。可用的设置会被保留，下次程序就能直接启动。"
           }
         }
       }
@@ -21304,6 +21616,58 @@
         }
       }
     },
+    "Installing components this program needs (%lld of %lld)": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Komponenten werden installiert, die dieses Programm braucht (%lld von %lld)"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Instalando los componentes que necesita este programa (%lld de %lld)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Installation des composants nécessaires à ce programme (%lld sur %lld)"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Installazione dei componenti necessari al programma (%lld di %lld)"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このプログラムに必要なコンポーネントをインストール中（%1$lld/%2$lld）"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 프로그램에 필요한 구성 요소 설치 중 (%lld/%lld)"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Устанавливаем компоненты, нужные программе (%1$lld из %2$lld)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在安装此程序所需的组件（%lld/%lld）"
+          }
+        }
+      }
+    },
     "Installing components this game needs": {
       "localizations": {
         "de": {
@@ -21352,6 +21716,58 @@
           "stringUnit": {
             "state": "translated",
             "value": "正在安装此游戏所需的组件"
+          }
+        }
+      }
+    },
+    "Installing components this program needs": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Komponenten werden installiert, die dieses Programm braucht"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Instalando los componentes que necesita este programa"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Installation des composants nécessaires à ce programme"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Installazione dei componenti necessari al programma"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このプログラムに必要なコンポーネントをインストール中"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 프로그램에 필요한 구성 요소 설치 중"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Устанавливаем компоненты, нужные программе"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在安装此程序所需的组件"
           }
         }
       }
@@ -25727,6 +26143,58 @@
         }
       }
     },
+    "Magic Kettle can't see program windows": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Magic Kettle kann Programmfenster nicht sehen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Magic Kettle no puede ver las ventanas de los programas"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Magic Kettle ne voit pas les fenêtres des programmes"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Magic Kettle non vede le finestre dei programmi"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Magic Kettle はプログラムのウインドウを見られません"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Magic Kettle이 프로그램 창을 볼 수 없습니다"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Magic Kettle не видит окна программ"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Magic Kettle 无法查看程序窗口"
+          }
+        }
+      }
+    },
     "Without the Screen Recording permission, Magic Kettle can't guarantee that the settings it finds really work: a game stuck on a black screen may look like it runs.": {
       "localizations": {
         "de": {
@@ -25775,6 +26243,58 @@
           "stringUnit": {
             "state": "translated",
             "value": "没有屏幕录制权限，Magic Kettle 无法保证找到的设置真的可用：卡在黑屏上的游戏可能看起来像在运行。"
+          }
+        }
+      }
+    },
+    "Without the Screen Recording permission, Magic Kettle can't guarantee that the settings it finds really work: a program stuck on a black screen may look like it runs.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ohne die Berechtigung zur Bildschirmaufnahme kann Magic Kettle nicht garantieren, dass die gefundenen Einstellungen wirklich funktionieren: Ein Programm, das auf einem schwarzen Bildschirm hängt, kann so aussehen, als liefe es."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sin el permiso de grabación de pantalla, Magic Kettle no puede garantizar que los ajustes que encuentre funcionen de verdad: un programa atascado en una pantalla negra puede parecer que funciona."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sans l’autorisation d’enregistrement de l’écran, Magic Kettle ne peut pas garantir que les réglages trouvés fonctionnent vraiment : un programme bloqué sur un écran noir peut sembler tourner."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Senza il permesso di registrazione dello schermo, Magic Kettle non può garantire che le impostazioni trovate funzionino davvero: un programma bloccato su uno schermo nero può sembrare in esecuzione."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "画面収録の許可がないと、Magic Kettle は見つけた設定が本当に動くことを保証できません。黒い画面で止まったプログラムが動いているように見えることがあるためです。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "화면 기록 권한이 없으면 Magic Kettle은 찾은 설정이 실제로 작동하는지 보장할 수 없습니다. 검은 화면에서 멈춘 프로그램이 실행 중인 것처럼 보일 수 있기 때문입니다."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Без разрешения на запись экрана Magic Kettle не может гарантировать, что подобранные настройки действительно работают: программа, зависшая на чёрном экране, может выглядеть запущенной."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "没有屏幕录制权限，Magic Kettle 无法保证找到的设置真的可用：卡在黑屏上的程序可能看起来像在运行。"
           }
         }
       }

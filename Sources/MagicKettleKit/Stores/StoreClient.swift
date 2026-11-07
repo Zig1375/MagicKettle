@@ -195,7 +195,9 @@ public struct StoreClient: Sendable {
                                                                                             runtime: runtime) }
             try ChromiumHelper.wrap(store, in: bottle(for: store))
             try Self.drawSharp(bottle(for: store), retina: store.drawsAtScreenResolution)
-            try Self.setUpForGames(bottle(for: store))
+            let programs = (try? GameLibrary.load(from: paths.library))?.games
+                .filter { $0.runsWith == store }.map { URL(filePath: $0.executable).lastPathComponent } ?? []
+            try Self.setUpForGames(bottle(for: store), programs: programs)
             await store.module.prepareToStart(self, bottle: bottle(for: store), wine: wine)
         }
         return wine

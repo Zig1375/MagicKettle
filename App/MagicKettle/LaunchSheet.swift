@@ -37,7 +37,7 @@ struct LaunchSheet: View {
                     .multilineTextAlignment(.center)
                     .accessibilityAddTraits(.isHeader)
                 if let component = launch.component {
-                    ComponentStatus(component: component)
+                    ComponentStatus(component: component, program: library.game(launch.id)?.isProgram == true)
                         .font(.system(size: 12))
                         .foregroundStyle(Color.secondaryText)
                         .multilineTextAlignment(.center)
@@ -267,13 +267,16 @@ struct LearnedToast: View {
 /// waiting on a first launch says what it is for.
 struct ComponentStatus: View {
     let component: GameLauncher.Component
+    /// A mod manager: "this program needs", not "this game needs" (Vortex's .NET 9).
+    var program = false
 
     var body: some View {
         VStack(spacing: 2) {
             if component.count > 1 {
-                Text("Installing components this game needs (\(component.number) of \(component.count))")
+                Text(program ? "Installing components this program needs (\(component.number) of \(component.count))"
+                     : "Installing components this game needs (\(component.number) of \(component.count))")
             } else {
-                Text("Installing components this game needs")
+                Text(program ? "Installing components this program needs" : "Installing components this game needs")
             }
             switch component.phase {
             case let .downloading(received, total):

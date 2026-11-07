@@ -16,11 +16,15 @@ public struct RedistNeeds: Sendable, Equatable {
         public var missing: [String: Set<String>]
         /// The shared frameworks a .NET program asks for, as `Microsoft.NETCore.App/8`.
         public var frameworks: [String]
+        /// The frameworks .NET helpers deeper in the folder ask for, by their own bitness (`helpers`).
+        public var helperFrameworks: [String: [String]]
 
-        public init(architecture: String, missing: [String: Set<String>] = [:], frameworks: [String] = []) {
+        public init(architecture: String, missing: [String: Set<String>] = [:], frameworks: [String] = [],
+                    helperFrameworks: [String: [String]] = [:]) {
             self.architecture = architecture
             self.missing = missing
             self.frameworks = frameworks
+            self.helperFrameworks = helperFrameworks
         }
     }
 
@@ -33,8 +37,10 @@ public struct RedistNeeds: Sendable, Equatable {
                 let missing = evidence.missing[redist.architecture] ?? []
                 return redist.provides.contains { missing.contains($0) }
             case .dotnet?:
-                return redist.architecture == evidence.architecture && redist.provides.contains { provided in
-                    evidence.frameworks.contains { $0.caseInsensitiveCompare(provided) == .orderedSame }
+                let asked = (redist.architecture == evidence.architecture ? evidence.frameworks : [])
+                    + (evidence.helperFrameworks[redist.architecture] ?? [])
+                return redist.provides.contains { provided in
+                    asked.contains { $0.caseInsensitiveCompare(provided) == .orderedSame }
                 }
             case nil:
                 return false
@@ -59,7 +65,9 @@ public struct RedistNeeds: Sendable, Equatable {
     static let fileLimit = 256
 
     /// Reads the evidence from the program's folder; nil for a program Wine can't run.
-    public static func read(executable: URL, info: ExecutableInfo) -> Evidence? {
+    /// - Parameter helpers: also look for .NET helpers deep in the folder (`helperFrameworks`); only for a folder
+    ///   of the program's own, never a shared one such as Downloads.
+    public static func read(executable: URL, info: ExecutableInfo, helpers: Bool = false) -> Evidence? {
         guard let architecture = architecture(of: info.format) else { return nil }
         let folder = executable.deletingLastPathComponent()
         let files = names(in: folder)
@@ -77,6 +85,7 @@ public struct RedistNeeds: Sendable, Equatable {
         let config = folder.appending(path: name + ".runtimeconfig.json")
         let configData = (try? Data(contentsOf: config)) ?? DotNetBundle.runtimeConfig(in: executable)
         evidence.frameworks = configData.map { frameworks(inRuntimeConfig: $0, files: files) } ?? []
+        if helpers { evidence.helperFrameworks = helperFrameworks(under: folder, excluding: config) }
         return evidence
     }
 

@@ -57,7 +57,7 @@ extension GameLauncher {
         let rpgMaker = RPGMakerGame.read(folder: folder)
         let manifest = try? ManifestUpdater(paths: paths).current()
         let rtps = rpgMaker.map { game in game.rtps.compactMap { manifest?.rtp($0, engine: game.engine) } } ?? []
-        let evidence = RedistNeeds.read(executable: exe, info: info)
+        let evidence = RedistNeeds.read(executable: exe, info: info, helpers: game.hasMarker)
         let redists = evidence.map { RedistNeeds.needed($0, from: manifest?.redists ?? []) } ?? []
 
         let rtpInstaller = RTPInstaller(paths: paths, host: host)

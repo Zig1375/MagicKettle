@@ -263,6 +263,11 @@ private let fixtures = URL(filePath: #filePath).deletingLastPathComponent()
         #expect(GameInstaller.suggestedName(installer: URL(filePath: "/Downloads/inst/Probe MSI Game.msi"))
             == "Probe MSI Game")
         #expect(GameInstaller.suggestedName(installer: URL(filePath: "/Downloads/Fallout 2/setup.msi")) == "Fallout 2")
+        // Tauri's package for Gale was the card's name, version, architecture and language included.
+        #expect(GameInstaller.suggestedName(installer: URL(filePath: "/Downloads/Gale_1.23.3_x64_en-US.msi")) == "Gale")
+        #expect(GameInstaller.withoutRelease("r2modman-3.2.21") == "r2modman")
+        #expect(GameInstaller.withoutRelease("Heroes 3.5") == "Heroes 3.5")
+        #expect(GameInstaller.withoutRelease("1.2.3") == "1.2.3")
     }
 
     @Test func theDefaultFolderIsUnderGamesWithASafeName() {
@@ -304,5 +309,28 @@ private let fixtures = URL(filePath: #filePath).deletingLastPathComponent()
             == ["msiexec", "/i", #"D:\SETUP\SETUP.EXE"#])
         #expect(installer.command(for: plan(.nsis), folder: #"G:\Probe Game"#, bottle: bottle)
             == [#"D:\SETUP\SETUP.EXE"#, #"/D=G:\Probe"#, "Game"])
+    }
+}
+
+/// Vortex's installer started Vortex on its last page: a white window in the installer's Windows, and the install
+/// waited for the player to close it.
+@Suite struct InstallerLeftoversTests {
+    let services = [#"C:\windows\system32\services.exe"#, #"C:\windows\system32\explorer.exe"#, "",
+                    "/tmp/home/Runtime/wine-11.20/wine/bin/wineserver"]
+
+    @Test func onlyWinesOwnProcessesMeanDone() {
+        #expect(GameInstaller.leftovers(services) == .none)
+        #expect(GameInstaller.leftovers([]) == .none)
+    }
+
+    @Test func theInstallersWorkIsWaitedFor() {
+        for program in [#"C:\users\me\AppData\Local\Temp\is-ABC.tmp\setup.tmp"#, #"G:\Game\redist\vc_redist.x64.exe"#,
+                        #"C:\users\me\AppData\Local\Temp\nsu1.tmp\Au_.exe"#, #"Z:\Downloads\Game Installer.exe"#] {
+            #expect(GameInstaller.leftovers(services + [program, #"G:\Game\Game.exe"#]) == .installing, "\(program)")
+        }
+    }
+
+    @Test func aProgramStartedForThePlayerIsLeftOver() {
+        #expect(GameInstaller.leftovers(services + [#"G:\Vortex\Vortex.exe"#, "G:/Vortex/Vortex.exe"]) == .launched)
     }
 }

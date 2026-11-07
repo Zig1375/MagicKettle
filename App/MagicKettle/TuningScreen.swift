@@ -171,6 +171,9 @@ private struct TuningCard: View {
     let library: LibraryModel
     let simpler: () -> Void
 
+    /// A mod manager rather than a game: the texts say "program".
+    private var program: Bool { library.game(launch.id)?.isProgram == true }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
@@ -196,12 +199,15 @@ private struct TuningCard: View {
                     Text("This is needed once, usually under a minute").modifier(TuningHint())
                 }
             }
-            TuningStep(state: .done, title: "Looked at the game's files",
+            TuningStep(state: .done, title: program ? "Looked at the program's files" : "Looked at the game's files",
                        detail: filesDetail.map { Text(verbatim: $0) })
             TuningStep(state: launch.windowsState == .done ? .done : .now, title: windowsTitle, detail: nil)
             if launch.windowsState == .done { attempts }
-            ScreenAccessWarning()
-            Text("""
+            ScreenAccessWarning(program: program)
+            Text(program ? """
+                The program's window stays hidden while Magic Kettle checks: it may open and close a few times. Once \
+                something works, the program appears by itself.
+                """ : """
                 The game's window stays hidden while Magic Kettle checks: it may open and close a few times. Once \
                 something works, the game appears by itself.
                 """)
@@ -232,8 +238,9 @@ private struct TuningCard: View {
 
     @ViewBuilder private var attempts: some View {
         VStack(alignment: .leading, spacing: 10) {
-            TuningStep(state: .now, title: "Trying to start the game",
-                       detail: Text("Checking that its window opens and the game keeps running"))
+            TuningStep(state: .now, title: program ? "Trying to start the program" : "Trying to start the game",
+                       detail: Text(program ? "Checking that its window opens and the program keeps running"
+                                    : "Checking that its window opens and the game keeps running"))
             VStack(alignment: .leading, spacing: 8) {
                 ForEach(Array(tuning.failed.enumerated()), id: \.offset) { _, failed in
                     TryRow(state: .fail, text: failedText(failed), note: note(failed))
@@ -383,15 +390,5 @@ private struct TryMark: View {
         case .now: .brand
         case .fail: .danger
         }
-    }
-}
-
-struct TuningHint: ViewModifier {
-    func body(content: Content) -> some View {
-        content
-            .font(.system(size: 12))
-            .lineSpacing(2)
-            .foregroundStyle(Color.secondaryText)
-            .fixedSize(horizontal: false, vertical: true)
     }
 }

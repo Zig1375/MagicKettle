@@ -72,6 +72,10 @@ public struct GameRecord: Codable, Sendable, Equatable, Identifiable {
     /// own (no client, its own settings), but shares the store's bottle and Windows. Nil for everything else.
     public var runsWith: Store?
 
+    /// A program that works with a store's games rather than a game itself: a mod manager, or anything put beside
+    /// a store by hand. The first-launch screen says "program" for it: it called Vortex "this game".
+    public var isProgram: Bool { runsWith != nil }
+
     /// The stores a mod manager asks between at each launch, of those installed then: a manager run with Steam
     /// can't start an Epic game (that client runs in another Windows), and a player may have one game in Steam and
     /// another in Epic. HedgeModManager mods Sonic Frontiers from both. Only a manager that works with more than one

@@ -139,6 +139,8 @@ public struct BottleManager: Sendable {
         }
         try Self.setWindowsVersion(windows, bottle: folder)
         try WindowsFonts.link(bottle: folder)
+        ExternalDisks.refresh(paths.disks)
+        try Self.linkHomeAndDisks(bottle: folder, disks: paths.disks)
         return folder
     }
 

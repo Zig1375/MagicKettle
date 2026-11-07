@@ -245,13 +245,7 @@ public struct GameIdentifier: Sendable {
         var record = GameRecord(id: .make(), name: name, executable: exe.path(percentEncoded: false),
                                 folder: folder.path(percentEncoded: false), hasMarker: false, addedAt: added)
         record.retina = SharedSettings.newGameRetina(paths: paths)
-        // A mod manager runs beside the store's games from its first launch, without the player doing anything.
-        if ModManagers.isModManager(productName: product, exeName: exe.lastPathComponent) {
-            let client = StoreClient(paths: paths)
-            record.runsWith = ModManagers.store(installed: Set(Store.allCases.filter(client.isInstalled)))
-            record.storeChoices = GameRecord.storeChoices(
-                supported: ModManagers.stores(productName: product, exeName: exe.lastPathComponent))
-        }
+        ModManagers.setUp(&record, exe: exe, productName: product, paths: paths)
         return record
     }
 

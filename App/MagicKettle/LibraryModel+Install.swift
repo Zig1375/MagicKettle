@@ -117,6 +117,7 @@ extension LibraryModel {
         Task {
             do {
                 guard let (runtime, _) = try currentRuntime() else { throw BottleError.runtimeMissing("") }
+                raiseInstallerWindows(of: id, runtime: runtime)
                 let installed = try await GameInstaller(paths: paths).install(plan, id: id,
                                                                               runtime: runtime) { step in
                     Task { @MainActor in
