@@ -32,6 +32,18 @@ extension AutoLaunchTests {
         #expect(!AutoLaunch.isTuning(next, order: [.dxvk, .dxmt], retrying: true))
     }
 
+    @Test func aModManagerSkipsGraphicsSearchButKeepsAnExplicitChoice() {
+        var manager = game
+        manager.executable = "/test/SAModManager.exe"
+        let launch = AutoLaunch(paths: paths)
+        let order: [GraphicsBackend] = [.dxvk, .dxmt, .wined3d]
+        #expect(launch.withoutSearch(order, for: manager, info: nil, override: nil) == [.dxvk])
+        #expect(launch.withoutSearch(order, for: manager, info: nil, override: .dxmt) == order)
+        manager.chosenBackend = .wined3d
+        #expect(launch.withoutSearch(order, for: manager, info: nil, override: nil) == order)
+        #expect(launch.withoutSearch(order, for: game, info: nil, override: nil) == order)
+    }
+
     @Test func aSearchThatFoundNothingSearchesAgainNextTime() async throws {
         // Nothing worked: no backend is kept, so the next launch opens the first-launch screen again rather than
         // starting the game on one that failed.

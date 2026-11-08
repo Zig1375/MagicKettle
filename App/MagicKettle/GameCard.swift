@@ -18,7 +18,7 @@ struct GameCard: View {
     private var waitsForUpdate: Bool { state == nil && library.isUpdatingComponents }
     /// Opened during the update (a double-click on its exe): it starts by itself when the update finishes.
     private var startsAfterUpdate: Bool { waitsForUpdate && library.startsAfterUpdate.contains(game.id) }
-    /// The game's folder was moved or deleted: the card says so, since its icon is gone too.
+    /// The executable was moved or deleted; cached artwork may still be available.
     private var filesMissing: Bool { state == nil && library.missingFiles.contains(game.id) }
 
     var body: some View {
@@ -106,6 +106,13 @@ struct GameCard: View {
 
     private var cover: some View {
         GameCoverArt(game: game, library: library)
+            .overlay {
+                // Cached covers can contain lettering right behind the missing-file status (r2modman).
+                // Use a quiet placeholder so the status and recovery action have their own readable space.
+                if filesMissing {
+                    Color(white: 0.16)
+                }
+            }
             .overlay(alignment: .topTrailing) {
                 if game.lastPlayed == nil, state == nil {
                     Pill(text: "New", background: .newBackground, foreground: .newText).padding(8)
@@ -131,7 +138,7 @@ struct GameCard: View {
                     .overlay { Circle().strokeBorder(.white.opacity(0.9), lineWidth: 2) }
                     .shadow(color: .black.opacity(0.4), radius: 10, y: 3)
                     .scaleEffect(isHovered ? 1 : 0.85)
-                    .opacity(isHovered && !isAboutHovered && state == nil ? 1 : 0)
+                    .opacity(filesMissing || (isHovered && !isAboutHovered && state == nil) ? 1 : 0)
                     .allowsHitTesting(false)
                     .accessibilityHidden(true)
             }

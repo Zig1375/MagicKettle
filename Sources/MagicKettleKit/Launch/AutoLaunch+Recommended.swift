@@ -11,10 +11,14 @@ extension AutoLaunch {
 
     /// A single-file Electron program draws without the GPU (`ChromiumApp.mode`), so no graphics suits it better
     /// than another: r2modman went through a first-launch search, and in Steam's Windows each backend tried
-    /// restarted Steam. It takes the Wine its store's client already runs in, or the plan's first.
+    /// restarted Steam. Known mod managers such as SA Mod Manager also use software drawing, not game graphics.
+    /// It takes the Wine its store's client already runs in, or the plan's first.
     func withoutSearch(_ order: [GraphicsBackend], for game: GameRecord, info: ExecutableInfo?,
                        override: GraphicsBackend?) -> [GraphicsBackend] {
-        guard info?.electronPortable == true, override == nil, game.chosenBackend == nil else { return order }
+        let manager = ModManagers.isModManager(productName: info?.productName,
+                                               exeName: URL(filePath: game.executable).lastPathComponent)
+        guard info?.electronPortable == true || manager, override == nil, game.chosenBackend == nil
+        else { return order }
         let running = game.bottleStore.flatMap { StoreClient(paths: paths).runningWine($0) }
         return Self.withoutSearch(order, running: running.map { BackendTree.backend(of: $0.root) })
     }

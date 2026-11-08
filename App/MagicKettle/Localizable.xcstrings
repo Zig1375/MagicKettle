@@ -26974,6 +26974,64 @@
           }
         }
       }
+    },
+    "Magic Kettle will remove this entry and its Windows setup. Saves will be kept.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Magic Kettle will remove this entry and its Windows setup. Saves will be kept."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Magic Kettle удалит эту запись и её среду Windows. Сохранения останутся."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Magic Kettle entfernt diesen Eintrag und seine Windows-Umgebung. Spielstände bleiben erhalten."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Magic Kettle eliminará esta entrada y su entorno de Windows. Se conservarán las partidas guardadas."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Magic Kettle supprimera cette entrée et son environnement Windows. Les sauvegardes seront conservées."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Magic Kettle rimuoverà questa voce e il suo ambiente Windows. I salvataggi verranno conservati."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Magic Kettle はこの項目と Windows 環境を削除します。セーブデータは保持されます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Magic Kettle이 이 항목과 Windows 환경을 삭제합니다. 저장 데이터는 유지됩니다."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Magic Kettle 将移除此条目及其 Windows 环境。存档将会保留。"
+          }
+        }
+      }
     }
   },
   "version": "1.0"
