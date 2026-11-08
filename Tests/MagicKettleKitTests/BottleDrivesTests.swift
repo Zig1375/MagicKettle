@@ -48,6 +48,14 @@ import Testing
         #expect(WindowsPath.windowsPath(of: URL(filePath: "/usr/bin"), inBottle: bottle) == #"Z:\usr\bin"#)
         #expect(WineProcesses.runs(vortex.path(percentEncoded: false), from: #"H:\Games\Vortex"#, bottle: bottle))
         #expect(WineProcesses.runs(#"H:\Games\Vortex\Vortex.exe"#, from: #"h:\games\vortex"#))
+
+        // An external disk linked in `Disks` (`V:`) has `/Volumes/…` as its real path, so a program opened or
+        // started through `V:` matches its folder either way.
+        let volume = temp.url.appending(path: "Volumes/Games SSD", directoryHint: .isDirectory)
+        try FileManager.default.createDirectory(at: volume.appending(path: "Portal"), withIntermediateDirectories: true)
+        ExternalDisks.sync(disks, to: ["Games SSD": volume.path(percentEncoded: false)])
+        let folder = WindowsPath.windowsPath(of: volume.appending(path: "Portal"), inBottle: bottle)
+        #expect(WineProcesses.runs(#"V:\Games SSD\Portal\portal.exe"#, from: folder, bottle: bottle))
     }
 
     @Test func rootIsHiddenAndOtherDrivesStayHidden() throws {

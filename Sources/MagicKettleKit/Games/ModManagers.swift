@@ -54,7 +54,7 @@ public enum ModManagers {
         let supported = stores(productName: productName, exeName: exe.lastPathComponent)
         guard !supported.isEmpty else { return }
         let client = StoreClient(paths: paths)
-        record.runsWith = store(installed: Set(Store.allCases.filter(client.isInstalled)))
+        record.runsWith = store(installed: Set(Store.allCases.filter(client.isInstalled)).intersection(supported))
         record.storeChoices = GameRecord.storeChoices(supported: supported)
     }
 

@@ -72,10 +72,9 @@ public struct GameLauncher: Sendable {
         -> (idle: Bool, client: (url: URL, arguments: [String])?) {
         guard let store = game.bottleStore else { return (true, nil) }
         let stores = StoreClient(paths: paths, host: host)
-        let idle = try await stores.prepareForGame(store, wine: wine, retina: retina, dpi: dpi)
-        // A program that runs with the store starts it first, so the store takes the program's requests.
-        guard game.store != nil else { return (try await !stores.startInBackground(store, wine: wine) && idle, nil) }
-        guard store.launchesGames, let id = game.storeID else { return (idle, nil) }
+        let program = game.isProgram ? URL(filePath: game.executable).lastPathComponent : nil
+        let idle = try await stores.prepareForGame(store, wine: wine, retina: retina, dpi: dpi, program: program)
+        guard game.store != nil, store.launchesGames, let id = game.storeID else { return (idle, nil) }
         return (idle, try stores.playCommand(store, storeID: id))
     }
 
@@ -123,6 +122,7 @@ public struct GameLauncher: Sendable {
         try files.link(into: bottle, registry: idle)
         try Self.prepareBottle(bottle, for: backend, wine: wine)
         try await insertDisc(of: game, into: bottle)
+        try await startStoreProgram(for: game, wine: wine)
         let environment = WineEnvironment.make(host: host, bottle: bottle.path,
                                                extra: (game.bottleStore?.environment ?? [:])
                                                    .merging(GameSettings.environment(of: game)) { _, user in user },

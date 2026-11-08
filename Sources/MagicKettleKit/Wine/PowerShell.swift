@@ -35,7 +35,11 @@ public enum PowerShell {
     /// Returns whether it changed anything.
     static func install(_ standIn: Data, at target: URL) throws -> Bool {
         guard FileManager.default.fileExists(atPath: target.deletingLastPathComponent().path) else { return false }
-        if let current = try? Data(contentsOf: target, options: .alwaysMapped), current == standIn { return false }
+        if FileManager.default.fileExists(atPath: target.path) {
+            let current = try Data(contentsOf: target, options: .alwaysMapped)
+            guard current != standIn else { return false }
+            guard current.range(of: marker) != nil || RedistInstaller.isWineStandIn(target) else { return false }
+        }
         try standIn.write(to: target, options: .atomic)
         return true
     }

@@ -79,7 +79,9 @@ public enum WineProcesses {
             ? WindowsPath.windowsPath(of: URL(filePath: program), inBottle: bottle ?? root) : program
         let base = normalized(folder)
         let prefix = base.hasSuffix("\\") ? base : base + "\\"
-        return normalized(program).hasPrefix(prefix)
+        if normalized(program).hasPrefix(prefix) { return true }
+        guard let bottle, let url = WindowsPath.macURL(for: program, bottle: bottle) else { return false }
+        return normalized(WindowsPath.windowsPath(of: url, inBottle: bottle)).hasPrefix(prefix)
     }
 
     /// The Wine tree a process runs from: its loader is `<tree>/bin/…` or `<tree>/lib/…`.

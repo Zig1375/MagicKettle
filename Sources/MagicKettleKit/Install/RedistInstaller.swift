@@ -174,6 +174,9 @@ public struct RedistInstaller: Sendable {
         }
         let older = !shared && (windows == .windowsXP || windows == .windows7)
         if older { try BottleManager.setWindowsVersion(.windows10, bottle: bottle) }
+        // In a store's bottle (`shared`), the client may not be running yet: `GameLauncher.configure` writes the
+        // bottle's registry after this, so a server this installer started itself is stopped again.
+        let stopWhenDone = !shared || WineProcesses.running(in: bottle).isEmpty
 
         // Wine starts a program by its extension, and the download is named by its hash.
         let temp = bottle.appending(path: "drive_c/windows/temp", directoryHint: .isDirectory)
@@ -187,8 +190,9 @@ public struct RedistInstaller: Sendable {
         defer { Self.restore(standIns) }
         let run = try await ProcessRunner.run(wine.wine.path, [setup.path(percentEncoded: false)] + redist.arguments,
                                               environment: environment, timeout: 20 * 60)
-        if !shared {
+        if stopWhenDone {
             _ = try? await ProcessRunner.run(wine.wineserver.path, ["-k"], environment: environment, timeout: 20)
+            _ = try? await ProcessRunner.run(wine.wineserver.path, ["-w"], environment: environment, timeout: 20)
         }
         if older { try BottleManager.setWindowsVersion(windows, bottle: bottle) }
         try Task.checkCancellation()

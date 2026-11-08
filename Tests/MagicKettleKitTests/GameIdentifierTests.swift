@@ -110,10 +110,16 @@ import Testing
 
         let result = try identifier.identify(executable: copy.appending(path: "skyrim.exe"))
         #expect(result.method == .copiedFolder)
+        #expect(result.record.hasMarker)
         #expect(result.record.id != original.record.id)
         #expect(identifier.readMarker(in: copy) == result.record.id)
         #expect(identifier.readMarker(in: exe.deletingLastPathComponent()) == original.record.id)
         #expect(try library().games.count == 2)
+
+        try FileManager.default.removeItem(at: paths.library)
+        let reimported = try identifier.identify(executable: exe)
+        #expect(reimported.method == .marker && reimported.record.hasMarker
+            && reimported.record.id == original.record.id)
     }
 
     @Test func noMarkerInSharedFolders() throws {

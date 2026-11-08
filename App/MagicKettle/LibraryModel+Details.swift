@@ -69,6 +69,7 @@ extension LibraryModel {
     func run(_ game: GameRecord, with store: Store?) {
         guard GameSettings.canRunWithStore(game, paths: paths) else { return }
         guard store != game.runsWith else { return }
+        Task { await warmer.cool(game.id) }
         update(game.id) { record in
             record.runsWith = store
             record.forgetLaunchSettings()

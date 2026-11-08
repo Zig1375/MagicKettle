@@ -62,7 +62,7 @@ public enum StoreGameStarts {
             for game in candidates {
                 let folder = WindowsPath.windowsPath(of: URL(filePath: game.folder, directoryHint: .isDirectory),
                                                      inBottle: bottle)
-                let own = processes.filter { WineProcesses.runs($0.program, from: folder) }
+                let own = processes.filter { WineProcesses.runs($0.program, from: folder, bottle: bottle) }
                 guard let first = own.first else { continue }
                 let since = own.compactMap(\.started).min() ?? now
                 let info = try? ExecutableInfo.read(URL(filePath: game.executable))

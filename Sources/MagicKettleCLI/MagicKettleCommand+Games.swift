@@ -188,8 +188,8 @@ extension MagicKettleCommand {
               RuntimeInstaller(paths: paths).installed(runtime) != nil
         else { return failure("The runtime isn't installed. Run: kettle runtime install") }
         var record = game
-        // A store game runs in its store's bottle, whose Windows version is the store's.
-        if windows != nil, let store = game.store {
+        // A store game or a program run with a store shares the store's bottle, whose Windows version is the store's.
+        if windows != nil, let store = game.bottleStore {
             return failure("\(game.name) runs in \(store.name)'s Windows, which keeps its own version.")
         }
         if let windows {
@@ -199,7 +199,8 @@ extension MagicKettleCommand {
         let bottles = BottleManager(paths: paths, host: host)
         if !bottles.hasTemplate(for: runtime) { progress("Setting up Windows for \(runtime.id) (once)…") }
         let bottle = try await bottles.ensureBottle(for: record.bottleID, runtime: runtime,
-                                                    windows: record.store == nil ? record.windowsVersion : .default)
+                                                    windows: record.bottleStore == nil ? record.windowsVersion
+                                                                                       : .default)
         let lines = summary + [
             "Windows: \(BottleManager.windowsVersion(of: bottle).displayName)",
             "Bottle: \(bottle.path(percentEncoded: false))",

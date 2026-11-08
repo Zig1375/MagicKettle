@@ -88,11 +88,14 @@ public struct StoreClient: Sendable {
     /// client running in another Wine tree is closed first, since everything in a bottle shares one tree.
     /// So is a client whose bottle would draw the game worse than it asks for (`needsRestart`).
     /// Returns whether the bottle was idle, so the game's settings could be written into its registry.
-    public func prepareForGame(_ store: Store, wine: Wine, retina: Bool, dpi: Int) async throws -> Bool {
+    public func prepareForGame(_ store: Store, wine: Wine, retina: Bool, dpi: Int,
+                               program: String? = nil) async throws -> Bool {
         if let running = runningWine(store) {
+            let bottle = bottle(for: store)
             let sameTree = running.root.standardized == wine.root.standardized
             let wanted = Drawn(retina: retina, dpi: dpi)
-            guard !sameTree || Self.needsRestart(drawn: Self.drawn(bottle(for: store)), wanted: wanted) else {
+            let displayReady = program.map { BottleManager.keepsRealDisplay(bottle: bottle, program: $0) } ?? true
+            guard !sameTree || Self.needsRestart(drawn: Self.drawn(bottle), wanted: wanted) || !displayReady else {
                 return false
             }
             await shutDown(store)
@@ -106,11 +109,12 @@ public struct StoreClient: Sendable {
     /// itself, and a Steam started that way checked its files, put its own web helper back over
     /// `ChromiumHelper`'s and stayed with no window, so Muck never started. Already running, Steam takes the
     /// program's request.
-    /// Returns whether it started it: the bottle's registry can't be written from then on (`WineRegistry`).
+    /// - Parameter prepared: true when `prepareForGame` and `GameLauncher.configure` already wrote the bottle's
+    ///   registry for this launch (`WineRegistry`).
     @discardableResult
-    public func startInBackground(_ store: Store, wine: Wine) async throws -> Bool {
+    public func startInBackground(_ store: Store, wine: Wine, prepared: Bool = false) async throws -> Bool {
         guard !isRunning(store), let client = store.client(in: bottle(for: store)) else { return false }
-        _ = try await prepare(store, runtime: nil, wine: wine)
+        if !prepared { _ = try await prepare(store, runtime: nil, wine: wine) }
         try start(wine, client, store.clientArguments(in: bottle(for: store)) + store.module.backgroundArguments,
                   store: store)
         return true

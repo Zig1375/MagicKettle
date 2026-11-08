@@ -93,7 +93,7 @@ public enum WindowsPath {
         var url = destination.hasPrefix("/") ? URL(filePath: destination, directoryHint: .isDirectory)
             : bottle.appending(path: "dosdevices").appending(path: destination, directoryHint: .isDirectory)
         for part in parts.dropFirst() {
-            url = matching(part, in: url) ?? url.appending(path: part)
+            url = (matching(part, in: url) ?? url.appending(path: part)).resolvingSymlinksInPath()
         }
         return url.standardizedFileURL
     }

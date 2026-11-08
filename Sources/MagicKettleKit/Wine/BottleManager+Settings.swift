@@ -38,6 +38,16 @@ extension BottleManager {
         }
     }
 
+    static func keepsRealDisplay(bottle: URL, program: String) -> Bool {
+        guard !program.isEmpty,
+              let text = try? String(contentsOf: bottle.appending(path: "user.reg"), encoding: .utf8) else {
+            return false
+        }
+        let key = #"Software\Wine\AppDefaults\"# + program + #"\X11 Driver"#
+        return WineRegistry.string(in: text, key: key, name: "EmulateModeset") == "n"
+            && WineRegistry.string(in: text, key: key, name: "StretchWindows") == "n"
+    }
+
     /// Both ⌘ keys reach Windows as Ctrl (`GameRecord.commandAsControl`); off, they are the Windows key.
     static func setCommandAsControl(bottle: URL, _ on: Bool) throws {
         for side in ["LeftCommandIsCtrl", "RightCommandIsCtrl"] {

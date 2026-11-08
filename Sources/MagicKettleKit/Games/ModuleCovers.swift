@@ -67,9 +67,25 @@ public enum ModuleCovers {
     }
 
     public static func fetch(_ url: URL) async -> Data? {
-        guard let (data, response) = try? await URLSession.shared.data(from: url),
-              (response as? HTTPURLResponse)?.statusCode == 200 else { return nil }
-        return data
+        await fetch(url, session: .shared)
+    }
+
+    /// Stop oversized responses before keeping their whole body, including servers without Content-Length.
+    static func fetch(_ url: URL, session: URLSession, maxBytes: Int = maxSize) async -> Data? {
+        do {
+            let (bytes, response) = try await session.bytes(from: url)
+            defer { bytes.task.cancel() }
+            guard (response as? HTTPURLResponse)?.statusCode == 200,
+                  response.expectedContentLength <= Int64(maxBytes) else { return nil }
+            var data = Data()
+            for try await byte in bytes {
+                guard data.count < maxBytes else { return nil }
+                data.append(byte)
+            }
+            return data
+        } catch {
+            return nil
+        }
     }
 
     /// Removes the kept covers no module of `index` names any more.

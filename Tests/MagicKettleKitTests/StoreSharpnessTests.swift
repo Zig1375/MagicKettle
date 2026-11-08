@@ -45,6 +45,8 @@ import Testing
         let own = #"Software\Wine\AppDefaults\Vortex.exe\X11 Driver"#
         #expect(WineRegistry.string(in: text, key: own, name: "EmulateModeset") == "n")
         #expect(WineRegistry.string(in: text, key: own, name: "StretchWindows") == "n")
+        #expect(BottleManager.keepsRealDisplay(bottle: temp.url, program: "Vortex.exe"))
+        #expect(!BottleManager.keepsRealDisplay(bottle: temp.url, program: "gale.exe"))
         #expect(WineRegistry.string(in: text, key: #"Software\Wine\X11 Driver"#, name: "EmulateModeset") == "y")
         #expect(!text.contains(#"AppDefaults\\\\X11"#))
     }

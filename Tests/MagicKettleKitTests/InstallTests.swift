@@ -325,12 +325,35 @@ private let fixtures = URL(filePath: #filePath).deletingLastPathComponent()
 
     @Test func theInstallersWorkIsWaitedFor() {
         for program in [#"C:\users\me\AppData\Local\Temp\is-ABC.tmp\setup.tmp"#, #"G:\Game\redist\vc_redist.x64.exe"#,
-                        #"C:\users\me\AppData\Local\Temp\nsu1.tmp\Au_.exe"#, #"Z:\Downloads\Game Installer.exe"#] {
+                        #"C:\users\me\AppData\Local\Temp\nsu1.tmp\Au_.exe"#, #"Z:\Downloads\Game Installer.exe"#,
+                        #"C:\windows\system32\msiexec.exe"#] {
             #expect(GameInstaller.leftovers(services + [program, #"G:\Game\Game.exe"#]) == .installing, "\(program)")
         }
     }
 
     @Test func aProgramStartedForThePlayerIsLeftOver() {
         #expect(GameInstaller.leftovers(services + [#"G:\Vortex\Vortex.exe"#, "G:/Vortex/Vortex.exe"]) == .launched)
+    }
+}
+
+@Suite struct InstallerHelperSafetyTests {
+    @Test func unknownWorkersAreNeverClosedAutomatically() {
+        #expect(GameInstaller.leftovers([#"G:\Game\worker.exe"#]) == .installing)
+        #expect(GameInstaller.leftovers([#"G:\Vortex\Vortex.exe"#,
+                                        #"G:\Game\worker.exe"#]) == .installing)
+    }
+}
+
+@Suite struct InstallerMacPathTests {
+    @Test func macPathsIdentifyProgramsAndWindowsServices() throws {
+        let temp = try TempFolder()
+        let windows = temp.url.appending(path: "drive_c/windows/system32")
+        try FileManager.default.createDirectory(at: windows, withIntermediateDirectories: true)
+        let vortex = temp.url.appending(path: "Vortex.exe").path
+        let service = windows.appending(path: "services.exe").path
+        #expect(GameInstaller.leftovers([vortex, service], bottle: temp.url) == .launched)
+        #expect(GameInstaller.leftovers([service], bottle: temp.url) == .none)
+        #expect(GameInstaller.leftovers([vortex, temp.url.appending(path: "worker.exe").path],
+                                        bottle: temp.url) == .installing)
     }
 }

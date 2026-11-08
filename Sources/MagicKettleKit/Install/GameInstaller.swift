@@ -205,20 +205,19 @@ public struct GameInstaller: Sendable {
         let bottle = paths.bottle(forGame: installed.id)
         let exe = program.standardized
         let folder = Self.contains(plan.folder, exe) ? plan.folder.standardized : exe.deletingLastPathComponent()
-        var hasMarker = true
-        do {
-            try GameIdentifier(paths: paths).writeMarker(installed.id, in: folder)
-        } catch {
-            hasMarker = false
-        }
+        let hasMarker = (try? GameIdentifier(paths: paths).writeMarker(installed.id, in: folder)) != nil
         let now = Date(timeIntervalSince1970: Date().timeIntervalSince1970.rounded(.down))
         var record = GameRecord(id: installed.id, name: plan.name, executable: exe.path(percentEncoded: false),
                                 folder: folder.path(percentEncoded: false), hasMarker: hasMarker,
                                 windowsVersion: plan.windowsVersion, addedAt: now)
         record.retina = SharedSettings.newGameRetina(paths: paths)
-        ModManagers.setUp(&record, exe: exe, productName: (try? ExecutableInfo.read(exe))?.productName, paths: paths)
+        if GameSettings.canReset(record, paths: paths) {
+            ModManagers.setUp(&record, exe: exe, productName: (try? ExecutableInfo.read(exe))?.productName,
+                              paths: paths)
+        }
         if keepDisc, let disc = plan.disc { record.disc = disc.image.path(percentEncoded: false) }
         if !keepDisc { DiscDrive.eject(from: bottle) }
+        if record.runsWith != nil { cancel(installed.id) }
         try GameLibrary.modify(paths.library) { $0[record.id] = record }
         return record
     }

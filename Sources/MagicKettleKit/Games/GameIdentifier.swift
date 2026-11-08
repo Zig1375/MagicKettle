@@ -91,8 +91,9 @@ public struct GameIdentifier: Sendable {
                 if Self.key(recordedFolder) != Self.key(folder), readMarker(in: recordedFolder) == id {
                     // The same .magickettle in two existing folders: the folder was copied (to try mods, say).
                     // The copy becomes its own game with its own bottle.
-                    let copy = newRecord(exe: exe, folder: folder, now: now)
+                    var copy = newRecord(exe: exe, folder: folder, now: now)
                     try writeMarker(copy.id, in: folder)
+                    copy.hasMarker = true
                     library[copy.id] = copy
                     return Result(record: copy, method: .copiedFolder)
                 }
@@ -105,6 +106,7 @@ public struct GameIdentifier: Sendable {
             // its id.
             var record = newRecord(exe: exe, folder: folder, now: now)
             record.id = id
+            record.hasMarker = true
             library[id] = record
             return Result(record: record, method: .marker)
         }

@@ -62,6 +62,27 @@ import Testing
         }
     }
 
+    @Test func downloadsRejectOversizedBodiesWithOrWithoutALength() async throws {
+        for declared in [true, false] {
+            let stub = StubProtocol.register { _ in
+                (200, declared ? ["Content-Length": "33"] : [:],
+                 Data(repeating: 0, count: 33))
+            }
+            let session = URLSession(configuration: stub.configuration)
+            defer { session.invalidateAndCancel() }
+            let url = try #require(URL(string: "stub://\(stub.host)/cover.png"))
+            #expect(await ModuleCovers.fetch(url, session: session, maxBytes: 32) == nil)
+        }
+    }
+
+    @Test func aSmallDownloadedCoverIsReturned() async throws {
+        let stub = StubProtocol.register { _ in (200, [:], Self.png) }
+        let session = URLSession(configuration: stub.configuration)
+        defer { session.invalidateAndCancel() }
+        let url = try #require(URL(string: "stub://\(stub.host)/cover.png"))
+        #expect(await ModuleCovers.fetch(url, session: session) == Self.png)
+    }
+
     @Test func onlyThePinnedPictureIsKept() {
         let cover = Self.cover(for: Self.png)
         #expect(ModuleCovers.isPinned(Self.png, by: cover))

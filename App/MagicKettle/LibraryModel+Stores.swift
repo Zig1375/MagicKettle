@@ -48,16 +48,16 @@ extension LibraryModel {
         watchStoreStarts()
     }
 
-    /// Stores installing, restarting, or with a game of theirs starting or running.
+    /// Stores installing, restarting, or with a game or program of theirs starting or running.
     private var busyStores: Set<Store> {
         var games = Array(states.keys)
         if let launch { games.append(launch.id) }
-        return Set(storeInstalls.keys).union(restartingStores).union(games.compactMap { game($0)?.store })
+        return Set(storeInstalls.keys).union(restartingStores).union(games.compactMap { game($0)?.bottleStore })
     }
 
-    /// Whether one of the store's games is starting or running: quitting the client would end it.
+    /// Whether one of the store's games or programs is starting or running: quitting the client would end it.
     func isPlaying(from store: Store) -> Bool {
-        states.keys.contains { game($0)?.store == store }
+        states.keys.contains { game($0)?.bottleStore == store }
     }
 
     /// "Quit Steam": the client and everything in its bottle.
