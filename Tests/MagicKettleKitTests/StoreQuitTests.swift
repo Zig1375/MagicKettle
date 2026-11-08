@@ -101,6 +101,8 @@ import Testing
         (#"C:\WINDOWS\system32\explorer.exe"#, true),
         ("/Users/zig/Library/Application Support/MagicKettle/Runtime/wine/bin/wineserver", true),
         (#"Z:\Applications\Magic Kettle.app\Contents\Resources\store-windows.exe"#, true),
+        ("/Applications/Magic Kettle.app/Contents/Resources/store-windows.exe", true),
+        ("/Users/zig/Downloads/HedgeModManager.exe", false),
         (#"C:\Program Files (x86)\Steam\steamapps\common\Banished\Application-x64.exe"#, false),
         (#"D:\SteamLibrary\steamapps\common\Portal 2\portal2.exe"#, false),
     ])

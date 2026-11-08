@@ -100,8 +100,9 @@ xcodebuild -project MagicKettle.xcodeproj -scheme MagicKettle -destination 'plat
 - Game modules (`docs/GAME-MODULES.md`): what particular games need, as data in the sibling repo `../MagicKettle-Games`,
   whose CI builds `games.json`. `GameModulesUpdater` fetches it daily into `GameModules.json` (the app's copy is
   `Resources/game-modules.json`, rebuilt with `tools/build_index.py --output` there); `GameModules` finds a game's
-  module (store id, exe SHA-256, exe name with ProductName, exe name) and turns its `launch` into a backend order
-  and Windows version. Only `launch` (backend, Windows) is applied so far. `kettle module list|show|update`.
+  module (store id, exe SHA-256, exe name with ProductName, ProductName alone, exe name) and turns its `launch` into a backend order
+  and Windows version. Only `launch` (backend, Windows) and `cover` (`ModuleCovers`: the card's picture for a
+  program without a store cover, such as a mod manager) are applied so far. `kettle module list|show|update`.
 - `AppPaths` is the only place that builds paths under `~/Library/Application Support/MagicKettle` (`MAGICKETTLE_HOME` overrides).
 
 ## Rules

@@ -28,4 +28,11 @@ extension GameLauncher {
         try BackendTree.prepareBottle(bottle, for: backend, wine: wine)
         try PowerShell.install(in: bottle)
     }
+
+    /// A program that runs with a store starts the store's client after the bottle's registry is written, so the
+    /// store runs with those settings and takes the program's requests.
+    func startStoreProgram(for game: GameRecord, wine: Wine) async throws {
+        guard let store = game.runsWith else { return }
+        _ = try await StoreClient(paths: paths, host: host).startInBackground(store, wine: wine, prepared: true)
+    }
 }

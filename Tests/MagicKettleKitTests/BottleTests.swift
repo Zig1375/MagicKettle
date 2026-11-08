@@ -161,13 +161,15 @@ import Testing
     @Test func buildsFinishingTogetherLeaveOneTemplate() async throws {
         let temp = try TempFolder()
         let destination = temp.url.appending(path: "r")
+        // Start with an interrupted build, so concurrent publishers also exercise replacement.
+        try FileManager.default.createDirectory(at: destination, withIntermediateDirectories: true)
         let stagings = try (0..<8).map { try staging("\($0)", in: temp.url) }
         try await withThrowingTaskGroup(of: Void.self) { group in
             for staging in stagings { group.addTask { try BottleManager.publish(staging, to: destination) } }
             try await group.waitForAll()
         }
         #expect(FileManager.default.fileExists(atPath: destination.appending(path: "build").path))
-        #expect(try FileManager.default.contentsOfDirectory(atPath: temp.url.path) == ["r"])
+        #expect(try FileManager.default.contentsOfDirectory(atPath: temp.url.path).sorted() == ["r", "r.publish-lock"])
     }
 
     @Test func anUnfinishedLeftoverIsReplacedAndAFinishedOneKept() throws {

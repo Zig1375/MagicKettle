@@ -29,6 +29,26 @@ import Testing
         #expect(WineRegistry.string(in: text, key: #"Software\Wine\X11 Driver"#, name: "EmulateModeset") == "y")
         #expect(WineRegistry.string(in: text, key: #"Software\Wine\X11 Driver"#, name: "StretchWindows") == "y")
         #expect(WineRegistry.string(in: text, key: #"Software\Wine\Mac Driver"#, name: "LeftCommandIsCtrl") == "y")
+        // SA Mod Manager's WPF window stayed blank through DXVK, the only graphics tried in Steam's Windows.
+        #expect(WineRegistry.dword(in: text, key: #"Software\Microsoft\Avalon.Graphics"#,
+                                   name: "DisableHWAcceleration") == 1)
+    }
+
+    /// Vortex went transparent on a 4K monitor in Steam's Windows: programs run with the store keep the real
+    /// displays, the store's games keep the emulated mode.
+    @Test func programsRunWithTheStoreKeepTheRealDisplays() throws {
+        let temp = try TempFolder()
+        let userReg = temp.url.appending(path: "user.reg")
+        try "WINE REGISTRY Version 2\n".write(to: userReg, atomically: true, encoding: .utf8)
+        try StoreClient.setUpForGames(temp.url, programs: ["Vortex.exe", "Vortex.exe", ""])
+        let text = try String(contentsOf: userReg, encoding: .utf8)
+        let own = #"Software\Wine\AppDefaults\Vortex.exe\X11 Driver"#
+        #expect(WineRegistry.string(in: text, key: own, name: "EmulateModeset") == "n")
+        #expect(WineRegistry.string(in: text, key: own, name: "StretchWindows") == "n")
+        #expect(BottleManager.keepsRealDisplay(bottle: temp.url, program: "Vortex.exe"))
+        #expect(!BottleManager.keepsRealDisplay(bottle: temp.url, program: "gale.exe"))
+        #expect(WineRegistry.string(in: text, key: #"Software\Wine\X11 Driver"#, name: "EmulateModeset") == "y")
+        #expect(!text.contains(#"AppDefaults\\\\X11"#))
     }
 
     @Test func aClientWithFixedPixelWindowsKeepsWinesDefaults() throws {

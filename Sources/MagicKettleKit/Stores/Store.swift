@@ -95,8 +95,12 @@ public struct Store: Hashable, Sendable, Identifiable, RawRepresentable, Codable
     var gameFolders: [String] { module.gameFolders }
 
     /// Whether `program` (a Windows path) is the client's, or Windows' own, rather than a game.
-    /// Wine's own Mac programs in the bottle (`wineserver`) have a Mac path and aren't games either.
-    func isClientProgram(_ program: String) -> Bool {
+    /// Wine's own Mac programs in the bottle (`wineserver`) have a Mac path and aren't games either; a Windows
+    /// program started by its Mac path (`steam.exe` or `HedgeModManager.exe`) is turned into its Windows path.
+    func isClientProgram(_ program: String, in bottle: URL? = nil) -> Bool {
+        let root = URL(filePath: "/", directoryHint: .isDirectory)
+        let program = program.hasPrefix("/") && program.lowercased().hasSuffix(".exe")
+            ? WindowsPath.windowsPath(of: URL(filePath: program), inBottle: bottle ?? root) : program
         guard program.range(of: #"^[A-Za-z]:\\"#, options: .regularExpression) != nil else { return true }
         if WineProcesses.runs(program, from: #"C:\windows"#) { return true }
         if program.lowercased().hasSuffix(#"\store-windows.exe"#) { return true }

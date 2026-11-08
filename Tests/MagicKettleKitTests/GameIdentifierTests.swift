@@ -26,6 +26,15 @@ import Testing
 
     func library() throws -> GameLibrary { try GameLibrary.load(from: paths.library) }
 
+    /// A program the game modules know gets its module's name, not its folder's or its exe's: HedgeModManager 8's
+    /// card was called "HedgeModManager.UI".
+    @Test func aKnownProgramIsNamedByItsModule() throws {
+        let known = try identifier.identify(executable: makeExe("Games/AU copy/Among Us.exe"))
+        #expect(known.record.name == "Among Us")
+        let unknown = try identifier.identify(executable: makeExe("Games/Heroes copy/Heroes3.exe"))
+        #expect(unknown.record.name == "Heroes copy")
+    }
+
     @Test func aNewGameGetsAMarkerNextToTheExe() throws {
         let exe = try makeExe("Games/Heroes3/Heroes3.exe")
         let result = try identifier.identify(executable: exe)
@@ -101,10 +110,16 @@ import Testing
 
         let result = try identifier.identify(executable: copy.appending(path: "skyrim.exe"))
         #expect(result.method == .copiedFolder)
+        #expect(result.record.hasMarker)
         #expect(result.record.id != original.record.id)
         #expect(identifier.readMarker(in: copy) == result.record.id)
         #expect(identifier.readMarker(in: exe.deletingLastPathComponent()) == original.record.id)
         #expect(try library().games.count == 2)
+
+        try FileManager.default.removeItem(at: paths.library)
+        let reimported = try identifier.identify(executable: exe)
+        #expect(reimported.method == .marker && reimported.record.hasMarker
+            && reimported.record.id == original.record.id)
     }
 
     @Test func noMarkerInSharedFolders() throws {
@@ -192,10 +207,14 @@ import Testing
         let exe = try makeExe("Downloads/r2modman.exe")
         let first = try identifier.identify(executable: exe)
         #expect(first.method == .new)
+        // A mod manager that works with Steam's and Epic's games asks between them, whatever is installed now.
+        #expect(first.record.storeChoices == [.steam, .epic])
         let again = try identifier.identify(executable: exe)
         #expect(again.method == .path)
         #expect(again.record.id == first.record.id)
-        #expect(try identifier.identify(executable: makeExe("Downloads/other.exe")).method == .new)
+        let other = try identifier.identify(executable: makeExe("Downloads/other.exe"))
+        #expect(other.method == .new)
+        #expect(other.record.storeChoices == nil)
         #expect(try library().games.count == 2)
     }
 
@@ -317,5 +336,41 @@ import Testing
                                       tail: "[Magic Kettle] Exit 53 after 3 s, bottle idle after 12 s",
                                       log: URL(filePath: "/l.log"))
         #expect(run?.worked == false)
+    }
+}
+
+/// Sonic Mania's ManiaModManager works on the folder it is in, so it sits in the game's folder inside Steam's
+/// Windows: opening it started Sonic Mania, and any other exe there is still refused.
+@Suite struct ModManagerInStoreTests {
+    @Test func aManagerInAStoreGamesFolderRunsWithThatStore() throws {
+        let temp = try TempFolder()
+        let home = temp.url.resolvingSymlinksInPath().appending(path: "home", directoryHint: .isDirectory)
+        let paths = AppPaths(root: home.appending(path: "Library/MagicKettle"), games: home.appending(path: "Games"))
+        let identifier = GameIdentifier(paths: paths, home: home)
+        let common = paths.bottle(forGame: Store.steam.bottleID)
+            .appending(path: "drive_c/Program Files (x86)/Steam/steamapps/common/Sonic Mania")
+        try FileManager.default.createDirectory(at: common, withIntermediateDirectories: true)
+        let game = common.appending(path: "SonicMania.exe")
+        let manager = common.appending(path: "ManiaModManager.exe")
+        for exe in [game, manager, common.appending(path: "Other.exe")] { try Data("MZ".utf8).write(to: exe) }
+        var mania = GameRecord(id: .make(), name: "Sonic Mania", executable: game.path(percentEncoded: false),
+                               folder: common.path(percentEncoded: false), hasMarker: false, addedAt: Date())
+        mania.store = .steam
+        mania.storeID = "584400"
+        try GameLibrary.modify(paths.library) { $0[mania.id] = mania }
+
+        let opened = try identifier.identify(executable: manager)
+        #expect(opened.method == .new)
+        #expect(opened.record.runsWith == .steam)
+        #expect(opened.record.store == nil)
+        // Where it is says which store: nothing to ask, and nothing to switch to.
+        #expect(opened.record.storeChoices == nil)
+        #expect(!GameSettings.canRunWithStore(opened.record, paths: paths))
+        // Deleting it from disk takes its exe, never Sonic Mania's folder.
+        #expect(GameRemover.trashTarget(for: opened.record, identifier: identifier) == manager)
+
+        #expect(try identifier.identify(executable: manager).record.id == opened.record.id)
+        #expect(try identifier.identify(executable: game).record.id == mania.id)
+        #expect(try identifier.identify(executable: common.appending(path: "Other.exe")).record.id == mania.id)
     }
 }

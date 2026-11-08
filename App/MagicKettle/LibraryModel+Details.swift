@@ -68,10 +68,50 @@ extension LibraryModel {
     /// starts them through it; nil runs it on its own again. What was found for it elsewhere is looked for again.
     func run(_ game: GameRecord, with store: Store?) {
         guard GameSettings.canRunWithStore(game, paths: paths) else { return }
+        guard store != game.runsWith else { return }
+        Task { await warmer.cool(game.id) }
         update(game.id) { record in
             record.runsWith = store
             record.forgetLaunchSettings()
         }
+    }
+
+    /// The stores a mod manager works with, by its exe; empty for other programs.
+    func supportedStores(of game: GameRecord) -> Set<Store> {
+        let exe = URL(filePath: game.executable)
+        return ModManagers.stores(productName: (try? ExecutableInfo.read(exe))?.productName,
+                                  exeName: exe.lastPathComponent)
+    }
+
+    /// "Ask Which Store at Launch" in the card's menu (`GameRecord.storeChoices`); off, it always runs with the store
+    /// ticked there.
+    func setAsksForStore(_ game: GameRecord, _ asks: Bool) {
+        let choices = asks ? GameRecord.storeChoices(supported: supportedStores(of: game)) : nil
+        update(game.id) { $0.storeChoices = choices }
+    }
+
+    /// The installed stores a mod manager asks between, the one it ran with last first; fewer than two never ask.
+    func storeChoices(for game: GameRecord) -> [Store] {
+        let stores = (game.storeChoices ?? []).filter(installedStores.contains)
+        return stores.filter { $0 == game.runsWith } + stores.filter { $0 != game.runsWith }
+    }
+
+    /// A mod manager that works with several stores asks before each launch which store's games it works with this
+    /// time, when more than one of them is installed. True when it asked.
+    func askedForStore(_ game: GameRecord) -> Bool {
+        guard storeChoices(for: game).count > 1, GameSettings.canRunWithStore(game, paths: paths) else { return false }
+        launch = nil
+        problem = Problem(kind: .chooseStore(game.id))
+        NSApp.activate()
+        return true
+    }
+
+    /// The player's answer: this launch runs with `store`, and it is offered first next time.
+    func choose(_ store: Store, for id: GameID) {
+        problem = nil
+        guard let game = game(id) else { return }
+        run(game, with: store)
+        if let updated = self.game(id) { play(updated, askingForStore: false) }
     }
 
     func update(_ id: GameID, _ change: (inout GameRecord) -> Void) {

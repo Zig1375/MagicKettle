@@ -30,6 +30,8 @@ final class LibraryModel {
     /// Portrait covers: one the player chose (`CustomCovers`), else the store's (`StoreCovers`).
     /// A game installed from a disc usually has neither, only its icon, which the card shows instead.
     private(set) var covers: [GameID: NSImage] = [:]
+    /// Where a module's cover wants the program's own icon drawn over it (`GameModule.IconPlace`).
+    private(set) var coverIcons: [GameID: GameModule.IconPlace] = [:]
     /// Games whose cover the player chose, which "Remove Cover" can take away.
     private(set) var customCovers: Set<GameID> = []
     private(set) var infos: [GameID: ExecutableInfo] = [:]
@@ -263,9 +265,19 @@ final class LibraryModel {
             let custom = CustomCovers.cover(for: game.id, paths: paths)
             var file = custom
             if file == nil { file = await StoreCovers.cover(for: game, paths: paths) }
+            var icon: GameModule.IconPlace?
+            if file == nil {
+                // A program Magic Kettle knows without a store, such as a mod manager: the cover its module gives.
+                let product = (try? ExecutableInfo.read(URL(filePath: game.executable)))?.productName
+                let found = await ModuleCovers.cover(for: game, productName: product,
+                                                     index: GameModulesUpdater(paths: paths).current(), paths: paths)
+                file = found?.file
+                icon = found?.icon
+            }
             guard let file, let image = NSImage(contentsOf: file) else { return }
             await MainActor.run {
                 self.covers[game.id] = image
+                self.coverIcons[game.id] = icon
                 if custom != nil { self.customCovers.insert(game.id) }
             }
         }

@@ -85,18 +85,27 @@ public struct BottleManager: Sendable {
     /// thrown away. A destination without its marker is an unfinished leftover and is replaced.
     static func publish(_ staging: URL, to destination: URL) throws {
         let fileManager = FileManager.default
+        // Keep the lock file: unlinking it would let another process lock a different inode.
+        let lockPath = destination.path + ".publish-lock"
+        let descriptor = open(lockPath, O_CREAT | O_RDWR, mode_t(0o600))
+        guard descriptor >= 0 else { throw BottleError.cloneFailed(String(cString: strerror(errno))) }
+        defer { close(descriptor) }
+        guard flock(descriptor, LOCK_EX) == 0 else {
+            throw BottleError.cloneFailed(String(cString: strerror(errno)))
+        }
+        defer { flock(descriptor, LOCK_UN) }
         let done = { fileManager.fileExists(atPath: destination.appending(path: templateMarker).path) }
         if done() {
             try? fileManager.removeItem(at: staging)
             return
         }
-        try? fileManager.removeItem(at: destination)
-        do {
-            try fileManager.moveItem(at: staging, to: destination)
-        } catch {
-            try? fileManager.removeItem(at: staging)
-            if !done() { throw error }
+        if !done(), fileManager.fileExists(atPath: destination.path) {
+            try? fileManager.removeItem(at: destination)
         }
+        if renamex_np(staging.path, destination.path, UInt32(RENAME_EXCL)) == 0 { return }
+        let error = errno
+        try? fileManager.removeItem(at: staging)
+        if !done() { throw BottleError.cloneFailed(String(cString: strerror(error))) }
     }
 
     /// Staging folders left by a build that was killed. A build takes about 35 s, so an hour-old one is dead.
@@ -139,6 +148,8 @@ public struct BottleManager: Sendable {
         }
         try Self.setWindowsVersion(windows, bottle: folder)
         try WindowsFonts.link(bottle: folder)
+        ExternalDisks.refresh(paths.disks)
+        try Self.linkHomeAndDisks(bottle: folder, disks: paths.disks)
         return folder
     }
 

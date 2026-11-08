@@ -68,7 +68,7 @@ struct InstallSheet: View {
     @ViewBuilder private var folderStep: some View {
         StepTitle(number: install.number(of: .folder), title: "Where to install")
         VStack(alignment: .leading, spacing: 6) {
-            Text("Game folder").font(.system(size: 13, weight: .semibold))
+            Text("Install folder").font(.system(size: 13, weight: .semibold))
             HStack(spacing: 8) {
                 Image(systemName: "folder").font(.system(size: 13)).foregroundStyle(Color.secondaryText)
                 Text(verbatim: Self.tilde(install.folder))
@@ -83,7 +83,7 @@ struct InstallSheet: View {
             .frame(height: 34)
             .background(Color.fieldBackground, in: .rect(cornerRadius: 8, style: .continuous))
             .overlay { RoundedRectangle(cornerRadius: 8, style: .continuous).strokeBorder(Color.buttonBorder) }
-            Text("The game goes into an ordinary folder on your Mac and stays there if its Windows is reset")
+            Text("Everything goes into an ordinary folder on your Mac and stays there if its Windows is reset")
                 .modifier(HintStyle())
         }
         if install.disc != nil {
@@ -97,11 +97,11 @@ struct InstallSheet: View {
             .tint(.brand)
         }
         if install.kind?.takesFolder == true {
-            Text("Next, the game's installer opens, as in Windows. The folder is already filled in.")
+            Text("Next, the installer opens, as in Windows. The folder is already filled in.")
                 .modifier(HintStyle())
         } else {
             Text("""
-                Next, the game's installer opens, as in Windows. If it asks where to install, enter \
+                Next, the installer opens, as in Windows. If it asks where to install, enter \
                 \(install.windowsFolder): that's this folder.
                 """)
                 .modifier(HintStyle())
@@ -121,7 +121,7 @@ struct InstallSheet: View {
         StepTitle(number: install.number(of: .folder), title: "Installing \(install.name)")
         switch step {
         case let .windows(firstTime):
-            Text(firstTime ? "Preparing Windows for the game (once, about 30 s)…" : "Preparing Windows for the game…")
+            Text(firstTime ? "Preparing Windows (once, about 30 s)…" : "Preparing Windows…")
                 .modifier(BodyStyle())
         case .installing:
             Text("The installer's window is open. Go through it as in Windows: Magic Kettle waits until it finishes.")
@@ -132,7 +132,7 @@ struct InstallSheet: View {
             Text("Choose that disc's image. Then answer the installer's window (Retry or OK).")
                 .modifier(HintStyle())
         case .findingGame:
-            Text("Looking for the game's program…").modifier(BodyStyle())
+            Text("Looking for the installed program…").modifier(BodyStyle())
         }
         ProgressView().progressViewStyle(.linear).tint(.brand)
         if install.disc != nil {
@@ -160,9 +160,9 @@ struct InstallSheet: View {
         StepTitle(number: install.number(of: .done(installed)), title: "\(install.name) is installed", done: true)
         let programs = installed.found.programs
         if programs.count > 1 {
-            Text("There are several programs in the folder. Which one starts the game?").modifier(BodyStyle())
+            Text("There are several programs in the folder. Which one should Magic Kettle start?").modifier(BodyStyle())
         } else if let only = programs.first {
-            Text("The game starts with \(only.name).").modifier(BodyStyle())
+            Text("Magic Kettle will start \(only.name).").modifier(BodyStyle())
         }
         VStack(alignment: .leading, spacing: 8) {
             ForEach(programs, id: \.url) { program in
@@ -172,9 +172,9 @@ struct InstallSheet: View {
             }
         }
         .accessibilityElement(children: .contain)
-        .accessibilityLabel("The game's main program")
+        .accessibilityLabel("The main program")
         if let uninstaller = installed.found.uninstaller {
-            Text("Magic Kettle doesn't show the game's uninstaller (\(uninstaller))").modifier(HintStyle())
+            Text("Magic Kettle doesn't show the uninstaller (\(uninstaller))").modifier(HintStyle())
         }
         buttons {
             Button("Show in Finder") { library.showInstalledFolder() }
@@ -187,7 +187,7 @@ struct InstallSheet: View {
 
     @ViewBuilder private func failedStep(_ log: URL?) -> some View {
         StepTitle(number: install.number(of: .failed(log: log)), title: "Nothing was installed")
-        Text("The installer finished without putting a game program in the folder or in its Windows.")
+        Text("The installer finished without putting a program in the folder or in its Windows.")
             .modifier(BodyStyle())
         buttons {
             if let log { Button("Open Log") { library.openLog(log) } }

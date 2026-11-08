@@ -78,6 +78,30 @@ private let probes = URL(filePath: #filePath).deletingLastPathComponent().deleti
         #expect(RedistNeeds.read(executable: exe, info: info)?.missing["x86"]?.contains("d3d9.dll") == false)
     }
 
+    /// Vortex is Electron; its FOMOD installer, six folders down, is a 64-bit .NET 9 desktop program. In Steam's
+    /// Windows it had no runtime and Vortex stopped with "Vortex requires .NET Desktop Runtime 9".
+    @Test func aDotNetHelperDeepInTheProgramsOwnFolderGetsItsRuntime() throws {
+        let folder = FileManager.default.temporaryDirectory.appending(path: "redist-\(UUID().uuidString)")
+        let dist = folder.appending(path: "resources/app.asar.unpacked/node_modules/@nexusmods/fomod/dist")
+        try FileManager.default.createDirectory(at: dist, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: folder) }
+        let exe = folder.appending(path: "Vortex.exe")
+        try Data().write(to: exe)
+        try FileManager.default.copyItem(at: probes.appending(path: "d3d9-x64.exe"),
+                                         to: dist.appending(path: "ModInstallerIPC.exe"))
+        try Data("""
+            {"runtimeOptions": {"frameworks": [{"name": "Microsoft.NETCore.App", "version": "9.0.0"},
+             {"name": "Microsoft.WindowsDesktop.App", "version": "9.0.0"}]}}
+            """.utf8).write(to: dist.appending(path: "ModInstallerIPC.runtimeconfig.json"))
+        let info = ExecutableInfo(format: .pe64, imports: [], productName: "Vortex", icon: nil, dpiAware: false)
+        let evidence = try #require(RedistNeeds.read(executable: exe, info: info, helpers: true))
+        #expect(evidence.helperFrameworks["x64"] == ["Microsoft.NETCore.App/9", "Microsoft.WindowsDesktop.App/9"])
+        let dotnet9 = redist("dotnet9-x64", kind: "dotnet", provides: ["Microsoft.WindowsDesktop.App/9"])
+        #expect(RedistNeeds.needed(evidence, from: [dotnet8, dotnet9]).map(\.id) == ["dotnet9-x64"])
+        // A shared folder such as Downloads isn't searched: other programs there aren't this one's.
+        #expect(RedistNeeds.read(executable: exe, info: info)?.helperFrameworks.isEmpty == true)
+    }
+
     @Test func aDotNetProgramGetsTheRuntimeOfItsMajorVersion() {
         let evidence = RedistNeeds.Evidence(architecture: "x64", frameworks: ["Microsoft.NETCore.App/8"])
         #expect(RedistNeeds.needed(evidence, from: [vc14, dotnet8]).map(\.id) == ["dotnet8-x64"])
@@ -135,6 +159,48 @@ private let probes = URL(filePath: #filePath).deletingLastPathComponent().deleti
         let dos = ExecutableInfo(format: .dos, imports: [], productName: nil, icon: nil, dpiAware: false)
         #expect(RedistNeeds.read(executable: exe, info: dos) == nil)
     }
+
+    @Test func aSingleFileProgramIsReadFromInsideItsExe() throws {
+        let folder = FileManager.default.temporaryDirectory.appending(path: "redist-\(UUID().uuidString)")
+        try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: folder) }
+        let exe = folder.appending(path: "HedgeModManager.exe")
+        try singleFileBundle(runtimeConfig: net8).write(to: exe)
+        let info = ExecutableInfo(format: .pe64, imports: [], productName: nil, icon: nil, dpiAware: false)
+        let evidence = try #require(RedistNeeds.read(executable: exe, info: info))
+        #expect(evidence.frameworks == ["Microsoft.NETCore.App/8"])
+        #expect(RedistNeeds.needed(evidence, from: [dotnet8]).map(\.id) == ["dotnet8-x64"])
+    }
+
+    @Test func aPlainAppHostHasNoBundledConfig() {
+        var host = Data(repeating: 0, count: 64)
+        host.append(Data(count: 8))
+        host.append(DotNetBundle.signature)
+        #expect(DotNetBundle.runtimeConfig(inBundle: host) == nil)
+        #expect(DotNetBundle.runtimeConfig(inBundle: Data("MZ".utf8)) == nil)
+        #expect(DotNetBundle.runtimeConfig(inBundle: singleFileBundle(runtimeConfig: net8, major: 1)) == nil)
+    }
+}
+
+/// An exe laid out as `dotnet publish -p:PublishSingleFile=true` writes it: the apphost with the header offset
+/// before the bundle signature, the files, then the header with the `runtimeconfig.json`'s offset and size.
+private func singleFileBundle(runtimeConfig: Data, major: Int32 = 6) -> Data {
+    func bytes<T: FixedWidthInteger>(_ value: T) -> Data { withUnsafeBytes(of: value.littleEndian) { Data($0) } }
+    var data = Data("MZ".utf8) + Data(count: 30)
+    let offsetAt = data.count
+    data.append(Data(count: 8))
+    data.append(DotNetBundle.signature)
+    let configAt = data.count
+    data.append(runtimeConfig)
+    let header = data.count
+    data.replaceSubrange(offsetAt..<offsetAt + 8, with: bytes(Int64(header)))
+    let bundleID = Data("jyEeWz9udQ_5".utf8)
+    data.append(bytes(major) + bytes(Int32(0)) + bytes(Int32(1)))
+    data.append(UInt8(bundleID.count))
+    data.append(bundleID)
+    data.append(bytes(Int64(0)) + bytes(Int64(0)))
+    data.append(bytes(Int64(configAt)) + bytes(Int64(runtimeConfig.count)) + bytes(UInt64(0)))
+    return data
 }
 
 @Suite struct RedistInstallerTests {

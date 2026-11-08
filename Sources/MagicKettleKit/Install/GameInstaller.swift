@@ -98,6 +98,8 @@ public struct GameInstaller: Sendable {
         let bottles = BottleManager(paths: paths, host: host)
         progress(.windows(firstTime: !bottles.hasTemplate(for: runtime)))
         let bottle = try await bottles.ensureBottle(for: id, runtime: runtime, windows: plan.windowsVersion)
+        // An installer's "Browse…" box, too, offers the home folder rather than the Mac's root.
+        try BottleManager.hideRoot(bottle: bottle)
         do {
             let target = Target(id: id, bottle: bottle, wine: Wine(runtimeFolder: runtimeFolder),
                                 template: paths.template(forRuntime: runtime.id))
@@ -159,8 +161,8 @@ public struct GameInstaller: Sendable {
         try await Self.runToEnd(wine, arguments, in: plan.installer.deletingLastPathComponent(),
                                 environment: environment, log: log)
         // Installers hand their work to other processes (Inno's setup.tmp, msiexec's server) and exit at once:
-        // done means the bottle has gone quiet.
-        _ = try? await ProcessRunner.run(wine.wineserver.path, ["-w"], environment: environment)
+        // done means the bottle has gone quiet, but for a program the installer started for the player.
+        await Self.waitForInstall(wine, bottle: bottle, environment: environment)
         watch?.cancel()
 
         progress(.findingGame)
@@ -205,21 +207,19 @@ public struct GameInstaller: Sendable {
         let bottle = paths.bottle(forGame: installed.id)
         let exe = program.standardized
         let folder = Self.contains(plan.folder, exe) ? plan.folder.standardized : exe.deletingLastPathComponent()
-        var hasMarker = true
-        do {
-            try GameIdentifier(paths: paths).writeMarker(installed.id, in: folder)
-        } catch {
-            hasMarker = false
-        }
+        let hasMarker = (try? GameIdentifier(paths: paths).writeMarker(installed.id, in: folder)) != nil
         let now = Date(timeIntervalSince1970: Date().timeIntervalSince1970.rounded(.down))
         var record = GameRecord(id: installed.id, name: plan.name, executable: exe.path(percentEncoded: false),
                                 folder: folder.path(percentEncoded: false), hasMarker: hasMarker,
                                 windowsVersion: plan.windowsVersion, addedAt: now)
         record.retina = SharedSettings.newGameRetina(paths: paths)
-        // Gale installs with Windows Installer; it then runs beside Steam's games like r2modman's single exe.
-        record.runsWith = ModManagers.store(for: exe, paths: paths)
+        if GameSettings.canReset(record, paths: paths) {
+            ModManagers.setUp(&record, exe: exe, productName: (try? ExecutableInfo.read(exe))?.productName,
+                              paths: paths)
+        }
         if keepDisc, let disc = plan.disc { record.disc = disc.image.path(percentEncoded: false) }
         if !keepDisc { DiscDrive.eject(from: bottle) }
+        if record.runsWith != nil { cancel(installed.id) }
         try GameLibrary.modify(paths.library) { $0[record.id] = record }
         return record
     }
@@ -326,9 +326,9 @@ public struct GameInstaller: Sendable {
 
 extension GameInstaller {
     /// A package's name without the version, architecture and language that follow it: Tauri names Gale's
-    /// `Gale_1.23.3_x64_en-US.msi`, and the game was called that, folder and card alike.
+    /// `Gale_1.23.3_x64_en-US.msi`, and the program was called that, folder and card alike.
     static func withoutRelease(_ name: String) -> String {
-        guard let release = name.firstMatch(of: /[ _-]v?\d+(\.\d+)+([ _-].*)?$/),
+        guard let release = name.firstMatch(of: /[ _-]v?\d+(\.\d+){2,}([ _-].*)?$/),
               release.range.lowerBound > name.startIndex else { return name }
         return String(name[..<release.range.lowerBound])
     }

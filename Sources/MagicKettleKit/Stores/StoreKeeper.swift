@@ -71,7 +71,7 @@ public actor StoreKeeper {
     /// A game of the store's running, or the client busy with something quitting would break (Steam getting a
     /// game ready, or downloading).
     static func playing(_ store: Store, in bottle: URL, processes: [WineProcesses.Process]? = nil) -> Bool {
-        (processes ?? WineProcesses.running(in: bottle)).contains { !store.isClientProgram($0.program) }
+        (processes ?? WineProcesses.running(in: bottle)).contains { !store.isClientProgram($0.program, in: bottle) }
             || store.module.isBusy(bottle: bottle)
     }
 

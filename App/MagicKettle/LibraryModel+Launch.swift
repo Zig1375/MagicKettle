@@ -62,9 +62,10 @@ extension LibraryModel {
         let backend: GraphicsBackend
     }
 
-    func play(_ game: GameRecord) {
+    /// - Parameter askingForStore: false once the player has just said which store a mod manager runs with.
+    func play(_ game: GameRecord, askingForStore: Bool = true) {
         guard states[game.id] == nil, !reportedMissingFiles(game), !waitsForUpdate(game),
-              !askedForDirectX12(game) else { return }
+              !askedForDirectX12(game), !(askingForStore && askedForStore(game)) else { return }
         states[game.id] = .starting
         launch = Launch(id: game.id, name: game.name, firstTime: (game.launches ?? 0) == 0)
         let control = LaunchControl()

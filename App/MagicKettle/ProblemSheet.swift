@@ -68,6 +68,20 @@ struct ProblemSheet: View {
             }
             .buttonStyle(BrandButtonStyle(kind: .primary, height: 32, radius: 8))
             .keyboardShortcut(.defaultAction)
+        } else if case let .chooseStore(id) = problem.kind {
+            Button("Cancel") { library.problem = nil }
+                .keyboardShortcut(.cancelAction)
+            let stores = library.game(id).map(library.storeChoices) ?? []
+            // Last time's store first, and the default: Return repeats it.
+            ForEach(stores.reversed()) { store in
+                if store == stores.first {
+                    Button(store.name) { library.choose(store, for: id) }
+                        .buttonStyle(BrandButtonStyle(kind: .primary, height: 32, radius: 8))
+                        .keyboardShortcut(.defaultAction)
+                } else {
+                    Button(store.name) { library.choose(store, for: id) }
+                }
+            }
         } else if case let .needsDisc(id, _) = problem.kind {
             Button("Cancel") { library.problem = nil }
                 .keyboardShortcut(.cancelAction)
@@ -89,6 +103,7 @@ struct ProblemSheet: View {
         case .needsDisc: "opticaldisc"
         case .needsSteam: "bag"
         case .needsDirectX12: "cpu"
+        case .chooseStore: "bag"
         }
     }
 
@@ -116,6 +131,7 @@ struct ProblemSheet: View {
         case .needsDisc: "The game asks for its disc"
         case .needsSteam: "This game needs Steam"
         case .needsDirectX12: "This game needs DirectX 12"
+        case .chooseStore: "Which store is the game from?"
         }
     }
 
@@ -152,6 +168,11 @@ struct ProblemSheet: View {
             Kettle to include it, but you can download it from Apple yourself, for free, in a couple of minutes. Magic \
             Kettle shows you how.
             """
+        case let .chooseStore(id):
+            """
+            \(library.game(id)?.name ?? "This program") works with the games of one store at a time. Choose the \
+            store of the game you want to play with mods this time. To stop asking, right-click its card.
+            """
         }
     }
 
@@ -165,6 +186,7 @@ struct ProblemSheet: View {
         case .needsSteam: "Found in the game's log: SteamAPI_Init() failed"
         case .needsDirectX12(.directX12): "The game's file uses d3d12.dll"
         case .needsDirectX12(.gameSettings): "Magic Kettle knows this game: it runs only with DirectX 12"
+        case .chooseStore: nil
         }
     }
 }

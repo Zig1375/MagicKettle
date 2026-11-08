@@ -18,7 +18,7 @@ struct GameCard: View {
     private var waitsForUpdate: Bool { state == nil && library.isUpdatingComponents }
     /// Opened during the update (a double-click on its exe): it starts by itself when the update finishes.
     private var startsAfterUpdate: Bool { waitsForUpdate && library.startsAfterUpdate.contains(game.id) }
-    /// The game's folder was moved or deleted: the card says so, since its icon is gone too.
+    /// The executable was moved or deleted; cached artwork may still be available.
     private var filesMissing: Bool { state == nil && library.missingFiles.contains(game.id) }
 
     var body: some View {
@@ -84,6 +84,13 @@ struct GameCard: View {
                 }))
                 .disabled(state != nil)
             }
+            // Reading the exe for what it supports waits for the click that turns asking on.
+            if game.storeChoices != nil || (game.runsWith != nil && library.installedStores.count > 1) {
+                Toggle("Ask Which Store at Launch", isOn: Binding(get: { game.storeChoices != nil }, set: { on in
+                    library.setAsksForStore(game, on)
+                }))
+                .disabled(state != nil)
+            }
         }
     }
 
@@ -99,6 +106,13 @@ struct GameCard: View {
 
     private var cover: some View {
         GameCoverArt(game: game, library: library)
+            .overlay {
+                // Cached covers can contain lettering right behind the missing-file status (r2modman).
+                // Use a quiet placeholder so the status and recovery action have their own readable space.
+                if filesMissing {
+                    Color(white: 0.16)
+                }
+            }
             .overlay(alignment: .topTrailing) {
                 if game.lastPlayed == nil, state == nil {
                     Pill(text: "New", background: .newBackground, foreground: .newText).padding(8)
@@ -124,7 +138,7 @@ struct GameCard: View {
                     .overlay { Circle().strokeBorder(.white.opacity(0.9), lineWidth: 2) }
                     .shadow(color: .black.opacity(0.4), radius: 10, y: 3)
                     .scaleEffect(isHovered ? 1 : 0.85)
-                    .opacity(isHovered && !isAboutHovered && state == nil ? 1 : 0)
+                    .opacity(filesMissing || (isHovered && !isAboutHovered && state == nil) ? 1 : 0)
                     .allowsHitTesting(false)
                     .accessibilityHidden(true)
             }
@@ -285,6 +299,7 @@ struct GameCoverArt: View {
                 .resizable()
                 .interpolation(.high)
                 .scaledToFill()
+                .overlay { coverIcon }
                 .accessibilityHidden(true)
         } else {
             // No cover: the icon, a little above the middle, on a tint of its own colour.
@@ -294,6 +309,25 @@ struct GameCoverArt: View {
                 GameIconTile(game: game, library: library, size: iconSize, iconSize: iconSize, radius: iconSize * 0.24,
                              plain: true)
                     .offset(y: -iconSize * 0.15)
+            }
+        }
+    }
+}
+
+extension GameCoverArt {
+    /// The program's own icon from its exe, where its module's cover left room for it: Sonic Mania's mod manager
+    /// may not have its icon in MagicKettle-Games, but the player's copy carries it.
+    @ViewBuilder var coverIcon: some View {
+        if let place = library.coverIcons[game.id], let icon = library.icons[game.id] {
+            GeometryReader { geometry in
+                let side = geometry.size.width * place.size
+                Image(nsImage: icon)
+                    .resizable()
+                    .interpolation(.high)
+                    .scaledToFit()
+                    .frame(width: side, height: side)
+                    .shadow(color: .black.opacity(0.35), radius: side * 0.06, y: side * 0.03)
+                    .position(x: geometry.size.width * place.x, y: geometry.size.height * place.y)
             }
         }
     }

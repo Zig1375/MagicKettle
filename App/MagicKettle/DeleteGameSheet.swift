@@ -18,43 +18,55 @@ struct DeleteGameSheet: View {
         VStack(alignment: .leading, spacing: 16) {
             Text("Delete \(game.name)?")
                 .font(.system(size: 17, weight: .bold))
-            Picker("How to delete", selection: $choice) {
-                option(title: "Only from Magic Kettle",
-                       text: """
-                           The game stays in \(folder). Magic Kettle forgets it and deletes its Windows setup. \
-                           Double-click the exe to bring it back.
-                           """)
-                    .tag(Choice.appOnly)
-                Group {
-                    if let program = onlyProgram {
-                        // The game sits in Downloads or another shared folder: that folder stays.
-                        option(title: "From disk",
-                               text: """
-                                   Only \(program)\(sizeText) goes to the Trash; \(folder) stays. Until the Trash \
-                                   is emptied, it can be restored.
-                                   """)
-                    } else {
-                        option(title: "From disk",
-                               text: """
-                                   The game folder\(sizeText) goes to the Trash. Until the Trash is emptied, \
-                                   the game can be restored.
-                                   """)
+            if !canMoveToTrash {
+                Text("Magic Kettle will remove this entry and its Windows setup. Saves will be kept.")
+                    .font(.system(size: 12))
+                    .foregroundStyle(Color.secondaryText)
+            } else {
+                Picker("How to delete", selection: $choice) {
+                    option(title: "Only from Magic Kettle",
+                           text: """
+                               The game stays in \(folder). Magic Kettle forgets it and deletes its Windows setup. \
+                               Double-click the exe to bring it back.
+                               """)
+                        .tag(Choice.appOnly)
+                    Group {
+                        if let program = onlyProgram {
+                            // The game sits in Downloads or another shared folder: that folder stays.
+                            option(title: "From disk",
+                                   text: """
+                                       Only \(program)\(sizeText) goes to the Trash; \(folder) stays. Until the Trash \
+                                       is emptied, it can be restored.
+                                       """)
+                        } else {
+                            option(title: "From disk",
+                                   text: """
+                                       The game folder\(sizeText) goes to the Trash. Until the Trash is emptied, \
+                                       the game can be restored.
+                                       """)
+                        }
                     }
+                    .tag(Choice.fromDisk)
                 }
-                .tag(Choice.fromDisk)
+                .pickerStyle(.radioGroup)
+                .labelsHidden()
             }
-            .pickerStyle(.radioGroup)
-            .labelsHidden()
-            Text("Saves are kept either way.")
-                .font(.system(size: 12))
-                .foregroundStyle(Color.secondaryText)
+            if canMoveToTrash {
+                Text("Saves are kept either way.")
+                    .font(.system(size: 12))
+                    .foregroundStyle(Color.secondaryText)
+            }
             HStack {
                 Spacer()
                 Button("Cancel") { done(false) }
                     .buttonStyle(.brand)
                     .keyboardShortcut(.cancelAction)
                 Button(choice == .appOnly ? "Remove from Magic Kettle" : "Move to Trash") {
-                    if choice == .appOnly { library.removeFromApp(game) } else { library.moveToTrash(game) }
+                    if choice == .appOnly || !canMoveToTrash {
+                        library.removeFromApp(game)
+                    } else {
+                        library.moveToTrash(game)
+                    }
                     done(true)
                 }
                 .buttonStyle(BrandButtonStyle(kind: .primary))
@@ -65,6 +77,12 @@ struct DeleteGameSheet: View {
         .frame(width: 460)
         .focusEffectDisabled()
         .task { if folderSize == nil { measured = await library.folderSize(of: game) } }
+    }
+
+    /// Check the actual removal target, not its byte count: an empty file can still exist.
+    private var canMoveToTrash: Bool {
+        let target = GameRemover.trashTarget(for: game, identifier: GameIdentifier(paths: library.paths))
+        return FileManager.default.fileExists(atPath: target.path)
     }
 
     private var folder: String { (game.folder as NSString).abbreviatingWithTildeInPath }

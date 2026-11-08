@@ -160,7 +160,8 @@ public struct RedistInstaller: Sendable {
     ///   - windows: the game's Windows version, put back afterwards. Microsoft's installers run on Windows 10:
     ///     .NET 5 and later refuse anything older, and an XP game may still be built with Visual C++ 2015.
     ///   - shared: a store's bottle, which keeps its Windows version and its Wine running: stopping Wine there
-    ///     would close the store's client. Gale runs in Steam's and needs WebView2 there.
+    ///     would close the store's client. Mod managers run in Steam's: HedgeModManager needs .NET 8 there,
+    ///     Gale needs WebView2.
     public func install(_ redist: RuntimeManifest.Redist, into bottle: URL, runtimeFolder: URL,
                         windows: WindowsVersion, shared: Bool = false,
                         progress: @escaping @Sendable (Phase) -> Void = { _ in }) async throws -> Result {
@@ -179,6 +180,9 @@ public struct RedistInstaller: Sendable {
         }
         let older = !shared && (windows == .windowsXP || windows == .windows7)
         if older { try BottleManager.setWindowsVersion(.windows10, bottle: bottle) }
+        // In a store's bottle (`shared`), the client may not be running yet: `GameLauncher.configure` writes the
+        // bottle's registry after this, so a server this installer started itself is stopped again.
+        let stopWhenDone = !shared || WineProcesses.running(in: bottle).isEmpty
 
         // Wine starts a program by its extension, and the download is named by its hash.
         let temp = bottle.appending(path: "drive_c/windows/temp", directoryHint: .isDirectory)
@@ -192,8 +196,9 @@ public struct RedistInstaller: Sendable {
         defer { Self.restore(standIns) }
         let run = try await ProcessRunner.run(wine.wine.path, [setup.path(percentEncoded: false)] + redist.arguments,
                                               environment: environment, timeout: 20 * 60)
-        if !shared {
+        if stopWhenDone {
             _ = try? await ProcessRunner.run(wine.wineserver.path, ["-k"], environment: environment, timeout: 20)
+            _ = try? await ProcessRunner.run(wine.wineserver.path, ["-w"], environment: environment, timeout: 20)
         }
         if older { try BottleManager.setWindowsVersion(windows, bottle: bottle) }
         try Task.checkCancellation()

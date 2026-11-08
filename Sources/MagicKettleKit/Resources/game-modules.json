@@ -1,7 +1,7 @@
 {
  "format": 1,
- "generated": "2026-10-28T19:49:10Z",
- "commit": "f1ac56b0eeed87762787bec947c8c5b0ee85778d",
+ "generated": "2026-11-06T19:46:52Z",
+ "commit": "6e44ccf3b05424dc05e0e311908bb38e56e5f9e8",
  "modules": [
   {
    "id": "among-us",
@@ -71,6 +71,164 @@
      }
     }
    ]
+  },
+  {
+   "id": "gale",
+   "revision": 1,
+   "format": 1,
+   "name": "Gale",
+   "note": "Gale, a Thunderstore mod manager. Its ProductName, \"Gale\" (productName in its src-tauri/tauri.conf.json), is too common a word to go by alone, so it is found with its exe's name, gale.exe, as its installer put it in Magic Kettle. The cover is Magic Kettle's own: the program's logo from its repository on a background in its colours, with its name. Without one its card showed only the small icon from the exe.",
+   "credits": [
+    {
+     "what": "cover, made from Gale's icon (images/icons/app-icon.png)",
+     "source": "https://github.com/Kesomannen/gale",
+     "license": "GPL-3.0-only"
+    }
+   ],
+   "match": {
+    "exe": [
+     {
+      "name": "gale.exe",
+      "product": "Gale"
+     }
+    ]
+   },
+   "cover": {
+    "from": "gale/cover.png",
+    "sha256": "eec76eef67e108726c277161fde840f0a770c4a7f5f6b291be10907a286e5ace",
+    "size": 309908
+   }
+  },
+  {
+   "id": "hedge-mod-manager",
+   "revision": 1,
+   "format": 1,
+   "name": "Hedge Mod Manager",
+   "note": "HedgeModManager, the mod manager for Sonic games. Version 7 says \"Hedge Mod Manager\" (its AssemblyInfo.cs); version 8 is a single-file .NET program whose exe carries its main assembly's name, \"HedgeModManager.UI\", checked on 8.0.0 beta 7 in Magic Kettle. The cover is Magic Kettle's own: the program's logo from its repository on a background in its colours, with its name. Without one its card showed only the small icon from the exe.",
+   "credits": [
+    {
+     "what": "cover, made from HedgeModManager's logo (Source/HedgeModManager.UI/Assets/Graphics/logo.png)",
+     "source": "https://github.com/hedge-dev/HedgeModManager",
+     "license": "MIT"
+    }
+   ],
+   "match": {
+    "product": [
+     "Hedge Mod Manager",
+     "HedgeModManager.UI"
+    ]
+   },
+   "cover": {
+    "from": "hedge-mod-manager/cover.png",
+    "sha256": "1ed092d3d30954acde1260a164972aa7566deb741d8959daace87919462ab171",
+    "size": 361682
+   }
+  },
+  {
+   "id": "mania-mod-manager",
+   "revision": 1,
+   "format": 1,
+   "name": "Mania Mod Manager",
+   "note": "ManiaModManager, from Sonic Retro's Sonic Mania mod loader. It works on the folder it is in, so it sits in Sonic Mania's folder. Found by its ProductName, \"ManiaModManager\" (AssemblyProduct in its Properties/AssemblyInfo.cs); not yet read from a real copy. Its repository has no license, so the cover leaves its icon to the player's own exe. The cover is Magic Kettle's own, with no art of anyone else's: the program's name on a background of its own colours, with room in the rings for the program's icon, which the app takes from the player's own exe (cover.icon). Without one its card showed only the small icon from the exe.",
+   "credits": [
+    {
+     "what": "cover, made for Magic Kettle without any third-party art",
+     "source": "https://github.com/Zig1375/MagicKettle-Games",
+     "license": "Apache-2.0"
+    }
+   ],
+   "match": {
+    "product": [
+     "ManiaModManager"
+    ]
+   },
+   "cover": {
+    "from": "mania-mod-manager/cover.png",
+    "icon": {
+     "x": 0.5,
+     "y": 0.36,
+     "size": 0.33
+    },
+    "sha256": "d47ea413144c3d343d1b36ecf8290b46ad95236bd492ac063427cab18cdf36cd",
+    "size": 318761
+   }
+  },
+  {
+   "id": "nexus-mods-app",
+   "revision": 1,
+   "format": 1,
+   "name": "Nexus Mods App",
+   "note": "The Nexus Mods app. It sets no ProductName of its own, so .NET writes its assembly name, \"NexusMods.App\" (src/NexusMods.App/NexusMods.App.csproj and Directory.Build.props set none). Not yet checked on a real copy in Magic Kettle: only the cover depends on it. The cover is Magic Kettle's own: the program's logo from its repository on a background in its colours, with its name. Without one its card showed only the small icon from the exe.",
+   "credits": [
+    {
+     "what": "cover, made from the app's icon (Nexus-Icon.png)",
+     "source": "https://github.com/Nexus-Mods/NexusMods.App",
+     "license": "GPL-3.0-only"
+    }
+   ],
+   "match": {
+    "product": [
+     "NexusMods.App"
+    ]
+   },
+   "cover": {
+    "from": "nexus-mods-app/cover.png",
+    "sha256": "9c5853c4b097e86899492a461ca03b680a19eaa0650b51dba92ee5ede90217ca",
+    "size": 314744
+   }
+  },
+  {
+   "id": "r2modman",
+   "revision": 1,
+   "format": 1,
+   "name": "r2modman",
+   "note": "r2modman, the Thunderstore mod manager. Its one-file download carries its version in its name (r2modman-3.2.21.exe), so it is found by its ProductName, \"r2modman\", checked on 3.2.21 in Magic Kettle. The cover is Magic Kettle's own: the program's logo from its repository on a background in its colours, with its name. Without one its card showed only the small icon from the exe.",
+   "credits": [
+    {
+     "what": "cover, made from r2modman's icon (public/icon.png)",
+     "source": "https://github.com/ebkr/r2modmanPlus",
+     "license": "MIT"
+    }
+   ],
+   "match": {
+    "product": [
+     "r2modman"
+    ]
+   },
+   "cover": {
+    "from": "r2modman/cover.png",
+    "sha256": "b0e184fc8e50d5b910e44dac1cc1bfba1c99dac5bc1e904ea537313f506378eb",
+    "size": 304963
+   }
+  },
+  {
+   "id": "sa-mod-manager",
+   "revision": 1,
+   "format": 1,
+   "name": "SA Mod Manager",
+   "note": "SA Mod Manager (X-Hax), the mod manager for Sonic Adventure DX and Sonic Adventure 2. Found by its ProductName, \"SAModManager\", read from SAModManager.exe of release 1.3.7. Its own icon is Sonic's head, Sega's character, which X-Hax's MIT license doesn't cover, so the cover leaves it to the player's own exe. The cover is Magic Kettle's own, with no art of anyone else's: the program's name on a background of its own colours, with room in the rings for the program's icon, which the app takes from the player's own exe (cover.icon). Without one its card showed only the small icon from the exe.",
+   "credits": [
+    {
+     "what": "cover, made for Magic Kettle without any third-party art",
+     "source": "https://github.com/Zig1375/MagicKettle-Games",
+     "license": "Apache-2.0"
+    }
+   ],
+   "match": {
+    "product": [
+     "SAModManager"
+    ]
+   },
+   "cover": {
+    "from": "sa-mod-manager/cover.png",
+    "icon": {
+     "x": 0.5,
+     "y": 0.36,
+     "size": 0.33
+    },
+    "sha256": "8f9515b40e7381b546e9b578fb923f28928f3527c87782ca95ec3b97428f101f",
+    "size": 322779
+   }
   }
  ],
  "shared": []

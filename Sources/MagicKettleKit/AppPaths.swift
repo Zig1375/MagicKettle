@@ -46,6 +46,8 @@ public struct AppPaths: Sendable, Equatable {
     /// Apple's D3DMetal, copied from the player's own download (`D3DMetal`).
     public var d3dmetal: URL { folder("D3DMetal") }
     public var screenshots: URL { folder("Screenshots") }
+    /// Links to the Mac's external disks, drive `V:` in every bottle (`ExternalDisks`).
+    public var disks: URL { folder("Disks") }
     /// Pictures of games fetched from their stores (`StoreScreenshots`, `EpicCovers`); safe to delete, they come back.
     public var artwork: URL { folder("Artwork") }
     public var library: URL { root.appending(path: "Games.json", directoryHint: .notDirectory) }

@@ -45,10 +45,13 @@ struct ScreenAccessNote: View {
 /// the cover (`ScreenAccess.show`).
 struct ScreenAccessWarning: View {
     private let allowed: Bool
+    /// A mod manager's first launch: "program windows", not "game windows".
+    private let program: Bool
 
     /// `allowed` is for snapshots (`ScreenAccessSnapshots`).
-    init(allowed: Bool = ScreenAccess.allowed) {
+    init(allowed: Bool = ScreenAccess.allowed, program: Bool = false) {
         self.allowed = allowed
+        self.program = program
     }
 
     var body: some View {
@@ -59,9 +62,12 @@ struct ScreenAccessWarning: View {
                     .padding(.top, 1)
                     .accessibilityHidden(true)
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Magic Kettle can't see game windows")
+                    Text(program ? "Magic Kettle can't see program windows" : "Magic Kettle can't see game windows")
                         .fontWeight(.semibold)
-                    Text("""
+                    Text(program ? """
+                        Without the Screen Recording permission, Magic Kettle can't guarantee that the settings it \
+                        finds really work: a program stuck on a black screen may look like it runs.
+                        """ : """
                         Without the Screen Recording permission, Magic Kettle can't guarantee that the settings it \
                         finds really work: a game stuck on a black screen may look like it runs.
                         """)

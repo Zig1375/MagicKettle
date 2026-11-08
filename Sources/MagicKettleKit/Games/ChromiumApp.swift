@@ -101,7 +101,7 @@ public enum ChromiumApp {
 
     /// Whether `data`, the start of an NSIS exe, is electron-builder's single-file build of an Electron program:
     /// it unpacks the program to a temporary folder and runs it, setting `PORTABLE_EXECUTABLE_DIR` for it. Its
-    /// script keeps that name in UTF-16, within its first megabyte (360 KB into r2modman 3.2.21).
+    /// script keeps that name in UTF-16 (360 KB into r2modman 3.2.21); the caller scans the first 4 MB.
     static func isElectronPortable(_ data: Data) -> Bool {
         data.range(of: portableMarker) != nil
     }

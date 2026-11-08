@@ -72,6 +72,24 @@ public struct GameRecord: Codable, Sendable, Equatable, Identifiable {
     /// own (no client, its own settings), but shares the store's bottle and Windows. Nil for everything else.
     public var runsWith: Store?
 
+    /// A program that works with a store's games rather than a game itself: a mod manager, or anything put beside
+    /// a store by hand. The first-launch screen says "program" for it: it called Vortex "this game".
+    public var isProgram: Bool { runsWith != nil }
+
+    /// The stores a mod manager asks between at each launch, of those installed then: a manager run with Steam
+    /// can't start an Epic game (that client runs in another Windows), and a player may have one game in Steam and
+    /// another in Epic. HedgeModManager mods Sonic Frontiers from both. Only a manager that works with more than one
+    /// store has it (`ModManagers.stores`), and it asks only while more than one of them is installed, so a store
+    /// installed later is asked about too. `runsWith` keeps the last answer, offered first. Nil never asks: other
+    /// programs, and a manager whose "Ask Which Store at Launch" was turned off.
+    public var storeChoices: [Store]?
+
+    /// `storeChoices` for a mod manager that works with `supported`: in the app's order, nil for one store or none.
+    public static func storeChoices(supported: Set<Store>) -> [Store]? {
+        let stores = Store.allCases.filter(supported.contains)
+        return stores.count > 1 ? stores : nil
+    }
+
     /// The store whose bottle this runs in: a store game's, or a program's that runs with one.
     public var bottleStore: Store? { store ?? runsWith }
 
