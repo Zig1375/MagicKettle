@@ -123,11 +123,9 @@ public struct GameLauncher: Sendable {
         try Self.prepareBottle(bottle, for: backend, wine: wine)
         try await insertDisc(of: game, into: bottle)
         try await startStoreProgram(for: game, wine: wine)
-        let environment = WineEnvironment.make(host: host, bottle: bottle.path,
-                                               extra: (game.bottleStore?.environment ?? [:])
-                                                   .merging(GameSettings.environment(of: game)) { _, user in user },
-                                               verboseLog: verboseLog || game.verboseLog == true,
-                                               fastSync: fastSync, locale: files.locale, backend: backend)
+        let environment = try await launchEnvironment(for: game, files: files, runtime: runtime, wine: wine,
+            options: .init(bottle: bottle, backend: backend, fastSync: fastSync,
+                           verboseLog: verboseLog, prepare: fetchGameFiles))
         progress(.starting)
         let folder = Self.watchedFolder(of: game, info: info, bottle: bottle)
         let storeClient = game.store == nil ? Store.clientProgram(exe, in: bottle) : nil

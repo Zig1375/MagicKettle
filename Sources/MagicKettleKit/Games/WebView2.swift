@@ -3,7 +3,8 @@ import Foundation
 /// Programs whose window is a web page drawn by Microsoft's WebView2 (Edge's Chromium), which Windows 10 and 11
 /// ship and Wine doesn't: Tauri apps such as the Gale mod manager, and many launchers. Without it Gale only said
 /// "Could not find the WebView2 Runtime", so Magic Kettle installs Microsoft's runtime like a game's Visual C++
-/// (`RedistNeeds`, kind `webview2`) and starts it with the switches Chromium needs under Wine (`ChromiumApp`).
+/// (`RedistNeeds`, kind `webview2`). Build 16 also needs shared GDI drawing and browser-only compatibility
+/// settings (`WebView2.prepare`); host command-line switches alone cannot configure its browser process.
 public enum WebView2 {
     /// The DLL WebView2's loader looks for in the runtime. Programs link the loader in (Tauri's `webview2-com`
     /// does, 16 MB into gale.exe) or carry it as `WebView2Loader.dll`; either way this name is in it as UTF-16.

@@ -303,6 +303,18 @@ private func singleFileBundle(runtimeConfig: Data, major: Int32 = 6) -> Data {
         #expect(RedistInstaller.isInstalled(webView2, in: bottle))
     }
 
+    @Test func webView2RetriesFailuresFromBeforeTheOfflineInstallerFix() throws {
+        let bottle = try bottle()
+        defer { try? FileManager.default.removeItem(at: bottle) }
+        var marker = RedistInstaller.Marker()
+        marker.failed = [.init(id: webView2.id, version: webView2.version, sha256: webView2.sha256,
+                               installerRevision: nil)]
+        try JSONEncoder().encode(marker).write(to: bottle.appending(path: RedistInstaller.markerName))
+        #expect(!RedistInstaller.failedBefore(webView2, in: bottle))
+        try RedistInstaller.record(webView2, installed: false, in: bottle)
+        #expect(RedistInstaller.failedBefore(webView2, in: bottle))
+    }
+
     @Test func aFailedDownloadIsRememberedUntilTheManifestHasAnother() throws {
         let bottle = try bottle()
         defer { try? FileManager.default.removeItem(at: bottle) }

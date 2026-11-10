@@ -30,6 +30,7 @@ extension GameLauncher {
         var rtps: [(rtp: RuntimeManifest.RTP, folder: URL)] = []
         /// The runtimes the game needs and its bottle has, by manifest id.
         var redists: [String] = []
+        var webView2 = false
         /// What couldn't be installed, for the game's log.
         var notes: [String] = []
         /// `GameLanguage`; nil for the Mac's.
@@ -68,6 +69,7 @@ extension GameLauncher {
         let count = missingRTPs.count + missingRedists.count
 
         var files = GameFiles(locale: GameLanguage.locale(forGameIn: folder))
+        files.webView2 = evidence?.webView2 == true
         files.window = rpgMaker?.screen.map { GameScaling.LearnedWindow(width: $0.width, height: $0.height,
                                                                        fullScreen: false) }
         for rtp in rtps {

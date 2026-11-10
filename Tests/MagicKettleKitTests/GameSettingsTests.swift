@@ -8,6 +8,22 @@ import Testing
                    hasMarker: true, addedAt: Date())
     }
 
+    @Test func modManagersAreNotAutomaticallyEnlargedLikeSmallGames() {
+        var record = game()
+        record.name = "Gale"
+        record.executable = "/Gale/gale.exe"
+        record.window = .init(width: 900, height: 732, fullScreen: false)
+        let screen = GameScaling.Size(width: 3008, height: 1631)
+        #expect(GameLauncher.drawing(for: record, retina: false, screen: screen).dpi == 96)
+        record.scaling = .on
+        #expect(GameLauncher.drawing(for: record, retina: false, screen: screen).dpi > 96)
+        record = game()
+        record.window = .init(width: 640, height: 480, fullScreen: false)
+        #expect(GameLauncher.drawing(for: record, retina: false, screen: screen).dpi > 96)
+        record.runsWith = .steam
+        #expect(GameLauncher.drawing(for: record, retina: false, screen: screen).dpi == 96)
+    }
+
     @Test func environmentLinesAndTheFrameCounter() {
         var record = game()
         record.environment = "#  one variable per line: NAME=value\nDXVK_HUD=fps\n\n  WINEDEBUG = +relay\nnot a line\n"

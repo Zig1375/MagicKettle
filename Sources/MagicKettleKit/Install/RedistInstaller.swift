@@ -15,6 +15,7 @@ public struct RedistInstaller: Sendable {
             public var id: String
             public var version: String
             public var sha256: String
+            public var installerRevision: Int?
         }
 
         public var installed: [Entry] = []
@@ -131,12 +132,16 @@ public struct RedistInstaller: Sendable {
 
     /// This exact download already failed in the bottle.
     public static func failedBefore(_ redist: RuntimeManifest.Redist, in bottle: URL) -> Bool {
-        marker(in: bottle).failed.contains { $0.id == redist.id && $0.sha256 == redist.sha256 }
+        marker(in: bottle).failed.contains {
+            $0.id == redist.id && $0.sha256 == redist.sha256
+                && (redist.kindValue != .webview2 || $0.installerRevision == 1)
+        }
     }
 
     static func record(_ redist: RuntimeManifest.Redist, installed: Bool, in bottle: URL) throws {
         var marker = marker(in: bottle)
-        let entry = Marker.Entry(id: redist.id, version: redist.version, sha256: redist.sha256)
+        let entry = Marker.Entry(id: redist.id, version: redist.version, sha256: redist.sha256,
+                                 installerRevision: redist.kindValue == .webview2 ? 1 : nil)
         marker.installed.removeAll { $0.id == redist.id }
         marker.failed.removeAll { $0.id == redist.id }
         if installed { marker.installed.append(entry) } else { marker.failed.append(entry) }
@@ -194,8 +199,14 @@ public struct RedistInstaller: Sendable {
 
         let standIns = Self.setAsideStandIns(of: redist, in: bottle)
         defer { Self.restore(standIns) }
-        let run = try await ProcessRunner.run(wine.wine.path, [setup.path(percentEncoded: false)] + redist.arguments,
+        let run: ProcessRunner.Output
+        if redist.kindValue == .webview2 {
+            run = try await Self.installWebView2(setup: setup, redist: redist, bottle: bottle,
+                                                wine: wine, environment: environment)
+        } else {
+            run = try await ProcessRunner.run(wine.wine.path, [setup.path(percentEncoded: false)] + redist.arguments,
                                               environment: environment, timeout: 20 * 60)
+        }
         if stopWhenDone {
             _ = try? await ProcessRunner.run(wine.wineserver.path, ["-k"], environment: environment, timeout: 20)
             _ = try? await ProcessRunner.run(wine.wineserver.path, ["-w"], environment: environment, timeout: 20)

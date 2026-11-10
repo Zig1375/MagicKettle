@@ -8,7 +8,13 @@ extension GameLauncher {
     ///   launch wins over it.
     static func drawing(for game: GameRecord, retina: Bool, predicted: GameScaling.LearnedWindow? = nil,
                         screen: GameScaling.Size = GameScaling.availableScreen()) -> (scale: Double, dpi: Int) {
-        let scale = GameScaling.scale(setting: game.scaling ?? .auto, learned: game.window ?? predicted,
+        // Mod managers are resizable tools, not fixed-size old games. Gale's earlier error dialog was learned
+        // as a small game window, which enlarged its entire desktop and cursor to 214 DPI on the next launch.
+        let program = game.isProgram || game.storeChoices != nil
+            || ModManagers.isModManager(productName: game.name,
+                                        exeName: URL(filePath: game.executable).lastPathComponent)
+        let setting: GameScaling.Setting = program && (game.scaling ?? .auto) == .auto ? .off : game.scaling ?? .auto
+        let scale = GameScaling.scale(setting: setting, learned: game.window ?? predicted,
                                       dpiAware: retina, screen: screen)
         return (scale, GameScaling.dpi(for: scale))
     }

@@ -39,22 +39,23 @@
       ]
     },
     {
-      "id": "wine-11.20-magickettle-15",
+      "id": "wine-11.20-magickettle-16",
       "minApp": "0.1.0",
       "minMacOS": "15.0",
       "components": [
         {
           "kind": "wine",
-          "version": "11.20 (Magic Kettle build 15)",
-          "url": "https://github.com/Zig1375/MagicKettle-Runtime/releases/download/wine-11.20-15/magickettle-wine-11.20-15.tar.xz",
-          "sha256": "7b3196a5a5fac07a554f4b098db01e04172f084883d9ffdd1bbcd052e1a363ca",
-          "size": 260706852,
+          "version": "11.20 (Magic Kettle build 16)",
+          "url": "https://github.com/Zig1375/MagicKettle-Runtime/releases/download/wine-11.20-16/magickettle-wine-11.20-16.tar.xz",
+          "sha256": "903d5687491d86a019966a956c5f8f765142cc53838720b1553bf85027d84346",
+          "size": 260717548,
           "license": "LGPL-2.1-or-later",
           "from": "wine",
           "into": "wine",
           "features": [
             "osync",
-            "d3dmetal"
+            "d3dmetal",
+            "cross-process-gdi"
           ]
         },
         {

@@ -71,8 +71,10 @@ enum Probes {
 @Suite(.enabled(if: ProcessInfo.processInfo.environment["MAGICKETTLE_INTEGRATION"] == "1"), .serialized)
 struct ProbeLaunchTests {
     @Test(arguments: [("d3d11-x64", GraphicsBackend.dxvk), ("d3d11-x64", .dxmt), ("d3d11-x86", .dxmt),
-                      ("d3d11-x86", .wined3d), ("d3d9-x64", .wined3d), ("d3d9-x86", .wined3d)])
-    func probeRendersFrames(_ name: String, _ backend: GraphicsBackend) async throws {
+                      ("d3d11-x86", .wined3d), ("d3d9-x64", .wined3d), ("d3d9-x86", .wined3d)],
+          ["0", "1"])
+    func probeRendersFrames(_ probe: (String, GraphicsBackend), _ sharedGDI: String) async throws {
+        let (name, backend) = probe
         let paths = AppPaths.standard()
         let runtime = try #require(RuntimeCatalog(
             installed: RuntimeInstaller(paths: paths).installedRuntimes(), manifest: RuntimeManifest.bundled(),
@@ -81,7 +83,8 @@ struct ProbeLaunchTests {
         let temp = try TempFolder()
         let exe = temp.url.appending(path: "\(name).exe")
         try FileManager.default.copyItem(at: Probes.url(name), to: exe)
-        let game = try GameIdentifier(paths: paths).identify(executable: exe).record
+        var game = try GameIdentifier(paths: paths).identify(executable: exe).record
+        game.environment = "WINE_CROSS_PROCESS_GDI=\(sharedGDI)"
         defer { try? GameRemover.removeFromApp(game.id, paths: paths) }
 
         let launcher = GameLauncher(paths: paths)
