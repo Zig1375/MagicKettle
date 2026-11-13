@@ -22,6 +22,8 @@ public struct GameRecord: Codable, Sendable, Equatable, Identifiable {
     /// How a Chromium program's window gets its picture (`ChromiumApp`), once a launch found out; nil decides
     /// from the program's files.
     public var chromium: ChromiumApp.Mode?
+    /// Godot's OpenGL compatibility renderer worked after its Direct3D 12 renderer failed.
+    var godotOpenGL: Bool?
     /// Total seconds played.
     public var playTime: TimeInterval?
     public var launches: Int?
@@ -120,6 +122,7 @@ public struct GameRecord: Codable, Sendable, Equatable, Identifiable {
         backend = nil
         window = nil
         chromium = nil
+        godotOpenGL = nil
     }
 
     /// Only the player's own games can be renamed: a store game keeps the name its store gives it.
@@ -147,7 +150,7 @@ public struct GameRecord: Codable, Sendable, Equatable, Identifiable {
     }
 
     /// Whether anything is left for `forgetLaunchSettings` to forget.
-    public var hasLaunchSettings: Bool { backend != nil || window != nil || chromium != nil }
+    public var hasLaunchSettings: Bool { backend != nil || window != nil || chromium != nil || godotOpenGL == true }
 
     public init(id: GameID, name: String, executable: String, folder: String, hasMarker: Bool,
                 fingerprint: String? = nil, windowsVersion: WindowsVersion = .default, addedAt: Date,

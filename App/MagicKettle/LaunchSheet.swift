@@ -163,7 +163,7 @@ struct LaunchSheet: View {
         switch seen {
         case .blankPicture?: Text("Its window stays blank.")
         case .frozen?: Text("Its picture freezes on a blank window.")
-        case .noWebGL?: Text("Its graphics can't start on this Mac.")
+        case .noWebGL?, .godotDirect3D12?: Text("Its graphics can't start on this Mac.")
         case let .closed(code)?: Text("It closes right after starting (code \(String(code))).")
         case .noWindow?, nil: Text("Its window never appeared.")
         }

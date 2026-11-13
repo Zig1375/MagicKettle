@@ -130,7 +130,7 @@ public struct AutoLaunch: Sendable {
             ? GameIdentifier.recommended(for: game) : nil
         let standard = (windows: game.windowsVersion, chromium: game.chromium)
         if let fromFile { Self.apply(fromFile, to: &game) }
-        var order = withoutSearch(Self.order(for: game, override: override, info: info, recommended: fromFile,
+        let order = withoutSearch(Self.order(for: game, override: override, info: info, recommended: fromFile,
                                              known: known, module: module, d3dmetal: d3dmetal),
                                   for: game, info: info, override: override)
         // Graphics picked in Advanced works like `--backend`: that one only, no retries. So does a module's
@@ -138,12 +138,26 @@ public struct AutoLaunch: Sendable {
         if override ?? game.chosenBackend ?? module.requireBackend != nil { control.stopRetrying() }
 
         if Self.isTuning(game, order: order, retrying: control.retrying) { events(.tuning(order)) }
+        return try await runAttempts(game, order: order, restore: fromFile == nil ? nil : standard, context: context)
+    }
+
+    private func runAttempts(_ game: GameRecord, order: [GraphicsBackend],
+                             restore: (WindowsVersion, ChromiumApp.Mode?)?, context: Context) async throws -> Result {
+        let (control, events) = (context.control, context.events)
+        var game = game
+        var order = order
         var attempts: [LaunchAttempt] = []
+        var triedOpenGL = false
         var index = 0
         while index < order.count {
             let backend = order[index]
             var ran = try await attempt(backend, of: game, number: index + 1, of: order.count, context: context)
             attempts.append(ran.attempt)
+            if let retry = try await retryGodot(ran, game: &game, tried: &triedOpenGL,
+                                                at: (index + 1, order.count), context: context) {
+                ran = retry
+                attempts.append(retry.attempt)
+            }
             if Self.foundChromium(ran, in: &game, context: context) {
                 order = Self.order(afterFindingChromiumIn: order, tried: index)
                 events(.retrying(ran.attempt, next: order[index + 1], attempt: index + 2, total: order.count))
@@ -156,9 +170,9 @@ public struct AutoLaunch: Sendable {
             attempts += redrawn.map(\.attempt)
             if ran.worked {
                 try keep(game, workingWith: backend)
-            } else if fromFile != nil, index == 0 {
+            } else if let restore, index == 0 {
                 // The settings that came with the game don't work here: the rest is the usual search.
-                (game.windowsVersion, game.chromium) = standard
+                (game.windowsVersion, game.chromium) = restore
             }
             let last = index == order.count - 1 || !ran.attempt.diagnosis.retryHelps || !control.retrying
             if ran.worked || !ran.judged || last {
@@ -171,31 +185,6 @@ public struct AutoLaunch: Sendable {
             index += 1
         }
         return Result(game: game, attempts: attempts, working: nil, log: attempts.last?.log)
-    }
-
-    /// What one launch keeps the same across its attempts.
-    struct Context: Sendable {
-        let runtime: RuntimeManifest.Runtime
-        /// The manifest's game database.
-        let knownGames: [KnownGame]
-        /// The game modules (`GameModules`).
-        let modules: [GameModule]
-        let verboseLog: Bool
-        let control: LaunchControl
-        let warmer: (any WarmBottles)?
-        let events: @Sendable (Event) -> Void
-        /// The program is Chromium by its files (`ChromiumApp`).
-        let chromiumProgram: Bool
-    }
-
-    /// How one attempt went, to the end of the game.
-    struct Ran {
-        var attempt: LaunchAttempt
-        var worked: Bool
-        /// False when the player stopped the checking and the game just ran.
-        var judged: Bool
-        /// Until everything in the bottle stopped: the play time.
-        var duration: TimeInterval
     }
 
     func attempt(_ backend: GraphicsBackend, of game: GameRecord, number: Int, of total: Int,
@@ -227,7 +216,7 @@ public struct AutoLaunch: Sendable {
             verdict = .failed(.blankPicture)
         }
         if verdict == .working {
-            context.events(.working(backend, learned: number > 1))
+            context.events(.working(backend, learned: number > 1 || game.godotOpenGL == true && game.backend == nil))
             // A first launch: a blank Chromium window may come after a launcher that drew, and a game may hang
             // once past its intro.
             if game.backend == nil, context.control.retrying,
@@ -294,7 +283,7 @@ public struct AutoLaunch: Sendable {
                 continue
             }
             let (blank, frozen) = await looks.look(at: owners, elapsed: elapsed, judge: judge, cpu: cpu)
-            if frozen { return .failed(.frozen) }
+            if let failure = log.graphicsFailure(frozen: frozen) { return .failed(failure) }
             if let verdict = judge.observe(elapsed: elapsed, window: !owners.isEmpty, exitCode: running.exitCode,
                                            idle: running.isIdle, blank: blank, noWebGL: log.noWebGL),
                looks.accepts(verdict) {
@@ -361,6 +350,31 @@ public final class LaunchControl: Sendable {
 }
 
 extension AutoLaunch {
+    /// What one launch keeps the same across its attempts.
+    struct Context: Sendable {
+        let runtime: RuntimeManifest.Runtime
+        /// The manifest's game database.
+        let knownGames: [KnownGame]
+        /// The game modules (`GameModules`).
+        let modules: [GameModule]
+        let verboseLog: Bool
+        let control: LaunchControl
+        let warmer: (any WarmBottles)?
+        let events: @Sendable (Event) -> Void
+        /// The program is Chromium by its files (`ChromiumApp`).
+        let chromiumProgram: Bool
+    }
+
+    /// How one attempt went, to the end of the game.
+    struct Ran {
+        var attempt: LaunchAttempt
+        var worked: Bool
+        /// False when the player stopped the checking and the game just ran.
+        var judged: Bool
+        /// Until everything in the bottle stopped: the play time.
+        var duration: TimeInterval
+    }
+
     /// One poll of the watch; Cancel stops the game and waits for its end.
     fileprivate func sleep(_ running: any GameAttempt) async throws {
         do {

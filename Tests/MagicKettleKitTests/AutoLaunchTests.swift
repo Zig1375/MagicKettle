@@ -76,12 +76,14 @@ import Testing
     final class FakeStarter: AttemptStarter, @unchecked Sendable {
         let scripts: [GraphicsBackend: Script]
         let logs: URL
+        let openGL: Script?
         private let state = Mutex<[(GraphicsBackend, FakeAttempt)]>([])
         private let games = Mutex<[GameRecord]>([])
 
-        init(_ scripts: [GraphicsBackend: Script], logs: URL) {
+        init(_ scripts: [GraphicsBackend: Script], logs: URL, openGL: Script? = nil) {
             self.scripts = scripts
             self.logs = logs
+            self.openGL = openGL
         }
 
         var started: [(GraphicsBackend, FakeAttempt)] { state.withLock { $0 } }
@@ -91,7 +93,8 @@ import Testing
         func start(_ game: GameRecord, runtime: RuntimeManifest.Runtime, backend: GraphicsBackend, verboseLog: Bool,
                    progress: @Sendable (GameLauncher.Step) -> Void) async throws -> any GameAttempt {
             let pid = Int32(state.withLock { $0.count } + 100)
-            let attempt = FakeAttempt(script: scripts[backend] ?? .showsNothing, pid: pid,
+            let script = game.godotOpenGL == true ? openGL : scripts[backend]
+            let attempt = FakeAttempt(script: script ?? .showsNothing, pid: pid,
                                       logFile: logs.appending(path: "\(pid).log"))
             state.withLock { $0.append((backend, attempt)) }
             games.withLock { $0.append(game) }

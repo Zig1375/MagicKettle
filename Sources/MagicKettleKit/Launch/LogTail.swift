@@ -32,6 +32,13 @@ struct LogWatch {
     /// Chromium refused the game WebGL (`LogDiagnosis.refusesWebGL`).
     private(set) var noWebGL = false
 
+    private var godot4 = false
+    private var direct3D12Failure = false
+    func graphicsFailure(frozen: Bool) -> AttemptJudge.Failure? {
+        if godot4 && direct3D12Failure { return .godotDirect3D12 }
+        return frozen ? .frozen : nil
+    }
+
     init(tail: LogTail) {
         self.tail = tail
     }
@@ -43,5 +50,9 @@ struct LogWatch {
             events(.asksForDisc(LogDiagnosis.messageText(line)))
         }
         noWebGL = noWebGL || lines.contains(where: LogDiagnosis.refusesWebGL)
+        godot4 = godot4 || lines.contains { $0.hasPrefix("Godot Engine v4.") }
+        direct3D12Failure = direct3D12Failure || lines.contains {
+            $0.contains("ERROR: D3D12CreateDevice failed") || $0.contains("ERROR: Create(Compute)PipelineState failed")
+        }
     }
 }

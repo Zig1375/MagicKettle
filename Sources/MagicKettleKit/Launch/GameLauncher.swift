@@ -219,7 +219,7 @@ public struct GameLauncher: Sendable {
         let retina = prepared.retina
         let header = Self.header(for: prepared, retina: retina, startedAt: startedAt)
         let arguments = (prepared.storeClient?.clientArguments(in: prepared.bottle) ?? [])
-            + GameSettings.arguments(prepared.game.arguments ?? "")
+            + prepared.game.launchArguments
             + (prepared.chromium?.arguments(forProgramIn: URL(filePath: prepared.game.executable)
                 .deletingLastPathComponent()) ?? [])
         var extra = arguments.isEmpty ? [] : ["[Magic Kettle] Arguments \(arguments.joined(separator: " "))"]

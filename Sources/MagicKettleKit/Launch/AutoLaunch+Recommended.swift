@@ -96,6 +96,7 @@ extension AutoLaunch {
         let (windows, chromium) = (game.windowsVersion, game.chromium)
         try update(game.id) { record in
             record.windowsVersion = windows
+            record.godotOpenGL = game.godotOpenGL
             if let chromium { record.chromium = chromium }
         }
         GameIdentifier.recommend(RecommendedSettings(backend: backend, windows: windows, chromium: chromium), for: game)

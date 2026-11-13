@@ -129,3 +129,19 @@ public enum GameSettings {
         }
     }
 }
+
+extension GameRecord {
+    var hasRendererArguments: Bool {
+        GameSettings.arguments(arguments ?? "").contains { argument in
+            ["--rendering-driver", "--rendering-method"].contains {
+                argument == $0 || argument.hasPrefix($0 + "=")
+            }
+        }
+    }
+
+    var launchArguments: [String] {
+        let entered = GameSettings.arguments(arguments ?? "")
+        guard godotOpenGL == true, store == nil, !hasRendererArguments else { return entered }
+        return ["--rendering-method", "gl_compatibility", "--rendering-driver", "opengl3"] + entered
+    }
+}

@@ -21,6 +21,7 @@ public enum LaunchReport {
             case .noWindow?: "no window after \(attempt.seconds) s"
             case .blankPicture?: "its window stayed blank"
             case .frozen?: "its picture froze on a blank window"
+            case .godotDirect3D12?: "Godot could not start Direct3D 12"
             case .noWebGL?: "its graphics didn't start (WebGL refused)"
             }
             lines.append("- \(attempt.backend.displayName): \(outcome)")

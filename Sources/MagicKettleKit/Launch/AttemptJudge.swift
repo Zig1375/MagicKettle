@@ -25,6 +25,8 @@ public struct AttemptJudge: Sendable, Equatable {
         /// Chromium refused the game WebGL (`LogDiagnosis.refusesWebGL`): an RPG Maker MZ game then shows "Failed to
         /// initialize graphics" in a window that looks fine to every other check.
         case noWebGL
+        /// Godot 4 could not create its Direct3D 12 device or compute pipeline.
+        case godotDirect3D12
     }
 
     /// How long the window has to stay up. A crash later than this is the game's, not the backend's.
